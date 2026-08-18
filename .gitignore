@@ -2,6 +2,7 @@
 node_modules/
 frontend/dist/
 backend/target/
+*.tsbuildinfo
 
 # 环境变量与密钥（绝不提交）
 .env
