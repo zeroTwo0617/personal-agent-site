@@ -1,0 +1,7 @@
+# Docker 构建上下文排除项：体积与无关文件不进镜像
+target/
+.idea/
+*.iml
+*.log
+.env
+.env.example

@@ -1,0 +1,109 @@
+server:
+  port: 8080
+
+spring:
+  application:
+    name: personal-agent
+  datasource:
+    url: jdbc:postgresql://${DB_HOST:localhost}:${DB_PORT:5432}/${DB_NAME:ragkb}
+    username: ${DB_USERNAME:ragkb}
+    password: ${DB_PASSWORD:ragkb}
+    driver-class-name: org.postgresql.Driver
+  flyway:
+    enabled: true
+    baseline-on-migrate: true
+    locations: classpath:db/migration
+  servlet:
+    multipart:
+      max-file-size: 10MB
+      max-request-size: 10MB
+  profiles:
+    active: local
+
+mybatis-plus:
+  type-aliases-package: me.zhengziheng.agent.entity
+  configuration:
+    map-underscore-to-camel-case: true
+    log-impl: org.apache.ibatis.logging.stdout.StdOutImpl
+
+# Embedding 配置
+# provider: local(本地 hash 兜底，无需 key/网络) | auto(有 key 用 API，否则本地) | api
+embedding:
+  provider: ${EMBEDDING_PROVIDER:auto}
+  api:
+    # 必须指向 embeddings 端点（OpenAI 兼容 /v1/embeddings），绝非 chat/completions
+    # bge-m3 输出 1024 维，与 V1 建表 vector(1024) 对齐
+    base-url: ${EMBEDDING_API_BASE_URL:https://api.siliconflow.cn/v1}
+    key: ${EMBEDDING_API_KEY:}
+    model: ${EMBEDDING_API_MODEL:BAAI/bge-m3}
+  dim: 1024
+
+# LLM 生成配置（M2 流式生成答案用，OpenAI 兼容协议，如 DeepSeek）
+# base-url 须以 /v1 结尾，代码会拼 /chat/completions。
+# key 优先级：环境变量 LLM_API_KEY > 环境变量 EMBEDDING_API_KEY > 空（此时降级抽取式）。
+# 不想配环境变量时，可建 gitignored 的 application-local.yml 直接写 key，并激活 local profile（详见 application-local.yml.example）。
+llm:
+  api:
+    base-url: ${LLM_API_BASE_URL:https://api.deepseek.com/v1}
+    key: ${LLM_API_KEY:${EMBEDDING_API_KEY:}}
+    # 模型名须与 base-url 对应网关一致；当前网关仅支持 deepseek-v4-pro / deepseek-v4-flash
+    model: ${LLM_MODEL:deepseek-v4-flash}
+    # 单次回答 token 上限（决策 Q6），防单次超支
+    max-tokens: ${LLM_MAX_TOKENS:800}
+  thinking:
+    # v4-flash 默认开启思考模式（旧 deepseek-chat 默认关）——静默行为变更，必须显式传参
+    # normal 快速兜底:disabled；agent 默认路径:low（disabled/low/high，评测 A/B 后定）
+    normal: ${LLM_THINKING_NORMAL:disabled}
+    agent: ${LLM_THINKING_AGENT:low}
+
+# 应用配置
+app:
+  cors-origins: ${CORS_ORIGINS:https://zhengziheng.me,https://www.zhengziheng.me,http://localhost:5173}
+  # 站点公开展示名（非法定真名）；AI 分身以该名自称
+  persona-name: ${PERSONA_NAME:郑梓恒}
+
+# 站长账号（配置注入，不落库）
+security:
+  admin:
+    username: ${ADMIN_USERNAME:admin}
+    password: ${ADMIN_PASSWORD:}          # 生产必填；BCrypt 哈希
+
+# JWT 配置
+jwt:
+  secret: ${JWT_SECRET:change-me-in-production-please-1234567890}
+  expiration: 86400
+
+# 混合检索 + Rerank 配置（M2 检索增强）
+rag:
+  # 每 IP 限流（内存滑动窗口）
+  rate-limit:
+    # 问答/反馈：默认 50 问/小时——按"面试官深度追问 + 同公司 NAT 共用出口 IP"留足余量
+    per-hour: ${RATE_LIMIT_PER_HOUR:50}
+    # 登录接口单独更严，防暴力破解站长密码
+    login-per-hour: ${LOGIN_RATE_LIMIT_PER_HOUR:10}
+  # 敏感词护栏：仅"索取本人隐私"意图词（技术词如密码/验证码/微信不进此表）
+  guard:
+    sensitive-words: ${SENSITIVE_WORDS:薪资,工资,待遇,期望薪酬,期望薪资,月薪,年薪}
+  # 知识库 seed 目录（支持外部路径，如 /data/kb）
+  kb:
+    dir: ${KB_DIR:classpath:kb}
+  # Chunk 切分配置（文档入库时生效）
+  chunk:
+    # 单块最大字符数：超过则二次切分（窗口滑动 + 句末标点优先）
+    max-chars: 200
+    # 相邻块重叠字符数：避免边界信息丢失、跨块知识点完整检索
+    overlap: 40
+  retrieval:
+    # 各路召回先取 topK*multiplier 候选，再做融合与重排，提升召回覆盖
+    candidate-multiplier: 3
+  rrf:
+    # RRF 倒数排名融合常数 k（常用 60），越大越削弱排名靠后项的影响
+    k: 60
+  rerank:
+    enabled: true
+    # 重排策略：heuristic(默认,零成本,可解释) | llm(更贴近语义,需 LLM key,每次多若干次打分调用)
+    strategy: heuristic
+    # 最终送入 LLM 生成的片段数
+    top-n: 6
+    # llm 策略下最多打分候选数（控制成本/延迟）
+    llm-cap: 10

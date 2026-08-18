@@ -1,0 +1,130 @@
+[
+  {
+    "id": "fact-01",
+    "type": "fact",
+    "question": "Vue3 的 ref 和 reactive 有什么区别？",
+    "expectedDocs": [],
+    "expectedPoints": ["ref", "reactive", "value", "响应式", "代理", "基本类型"],
+    "expectRefusal": false
+  },
+  {
+    "id": "fact-02",
+    "type": "fact",
+    "question": "Vue3 组合式 API 和选项式 API 有什么不同？",
+    "expectedDocs": [],
+    "expectedPoints": ["组合式", "选项式", "setup", "逻辑复用", "data", "生命周期"],
+    "expectRefusal": false
+  },
+  {
+    "id": "fact-03",
+    "type": "fact",
+    "question": "Spring Boot 中 @Transactional 在哪些场景会失效？",
+    "expectedDocs": [],
+    "expectedPoints": ["自调用", "public", "捕获", "传播", "代理", "失效"],
+    "expectRefusal": false
+  },
+  {
+    "id": "fact-04",
+    "type": "fact",
+    "question": "Spring Boot 的自动配置是怎么实现的？",
+    "expectedDocs": [],
+    "expectedPoints": ["自动配置", "EnableAutoConfiguration", "Condition", "starter", "factories"],
+    "expectRefusal": false
+  },
+  {
+    "id": "fact-05",
+    "type": "fact",
+    "question": "MyBatis 里 #{} 和 ${} 有什么区别？",
+    "expectedDocs": [],
+    "expectedPoints": ["预编译", "占位符", "注入", "拼接", "参数"],
+    "expectRefusal": false
+  },
+  {
+    "id": "fact-06",
+    "type": "fact",
+    "question": "SQL 索引在哪些情况下会失效？",
+    "expectedDocs": [],
+    "expectedPoints": ["函数", "隐式转换", "模糊", "最左前缀", "索引", "失效"],
+    "expectRefusal": false
+  },
+  {
+    "id": "fact-07",
+    "type": "fact",
+    "question": "SQL 中左连接和右连接有什么区别？",
+    "expectedDocs": [],
+    "expectedPoints": ["左连接", "右连接", "内连接", "NULL", "外连接"],
+    "expectRefusal": false
+  },
+  {
+    "id": "fact-08",
+    "type": "fact",
+    "question": "Vue3 常用的生命周期钩子有哪些？",
+    "expectedDocs": [],
+    "expectedPoints": ["onMounted", "onUpdated", "onUnmounted", "生命周期", "setup"],
+    "expectRefusal": false
+  },
+  {
+    "id": "fact-09",
+    "type": "fact",
+    "question": "Spring Boot 常见的核心注解有哪些？",
+    "expectedDocs": [],
+    "expectedPoints": ["SpringBootApplication", "Controller", "Service", "Autowired", "RestController"],
+    "expectRefusal": false
+  },
+  {
+    "id": "fact-10",
+    "type": "fact",
+    "question": "MyBatis 的一级缓存和二级缓存分别是什么？",
+    "expectedDocs": [],
+    "expectedPoints": ["一级缓存", "二级缓存", "SqlSession", "namespace", "Mapper"],
+    "expectRefusal": false
+  },
+  {
+    "id": "cross-01",
+    "type": "cross",
+    "question": "前后端分离项目里 Vue3 和 Spring Boot 怎么联调？",
+    "expectedDocs": [],
+    "expectedPoints": ["axios", "跨域", "CORS", "proxy", "REST", "接口"],
+    "expectRefusal": false
+  },
+  {
+    "id": "cross-02",
+    "type": "cross",
+    "question": "用 Spring Boot + MyBatis 实现分页查询的最佳实践是什么？",
+    "expectedDocs": [],
+    "expectedPoints": ["PageHelper", "分页", "LIMIT", "offset", "总条数"],
+    "expectRefusal": false
+  },
+  {
+    "id": "reject-01",
+    "type": "reject",
+    "question": "用 React 怎么做全局状态管理？",
+    "expectedDocs": [],
+    "expectedPoints": [],
+    "expectRefusal": true
+  },
+  {
+    "id": "reject-02",
+    "type": "reject",
+    "question": "怎么在 Kubernetes 上部署一个高可用集群？",
+    "expectedDocs": [],
+    "expectedPoints": [],
+    "expectRefusal": true
+  },
+  {
+    "id": "reject-03",
+    "type": "reject",
+    "question": "用 Python Django 怎么连接 PostgreSQL 数据库？",
+    "expectedDocs": [],
+    "expectedPoints": [],
+    "expectRefusal": true
+  },
+  {
+    "id": "reject-04",
+    "type": "reject",
+    "question": "用 Go 语言怎么写一个微服务？",
+    "expectedDocs": [],
+    "expectedPoints": [],
+    "expectRefusal": true
+  }
+]

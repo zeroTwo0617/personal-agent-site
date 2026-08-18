@@ -1,0 +1,40 @@
+# ============================================================
+# 本地密钥配置模板（仅本地使用，不会进版本库）
+# ============================================================
+# 用法：
+#   1) 复制本文件为 application-local.yml（已纳入 .gitignore，绝不会被提交）
+#        cp application-local.yml.example application-local.yml
+#   2) 把下面 sk-xxx 换成你自己的 DeepSeek / OpenAI 兼容 key
+#   3) 启动后端时激活 local profile（见下）
+#
+# 启动命令（任选其一）：
+#   PowerShell:  mvn spring-boot:run -Dspring-boot.run.profiles=local
+#   IDEA:        Run/Debug Configurations → Active profiles 填 local
+#   jar:         java -jar target/xxx.jar --spring.profiles.active=local
+#
+# 不配置本文件也能跑（自动降级为原文片段拼接，非 LLM 生成）。
+# 配置后访问 GET /api/chat/llm-status 可自检 available=true 即代表已接入大模型。
+# ============================================================
+
+llm:
+  api:
+    # 你的 LLM key（DeepSeek / OpenAI 兼容均可）
+    key: sk-这里替换为你的key
+    # 可选：自定义模型与 base-url
+    # 模型名必须与 base-url 对应网关一致；当前网关支持 deepseek-v4-pro(更强) / deepseek-v4-flash(更快更省)
+    # 默认即 deepseek-v4-flash，一般无需改
+    # base-url: https://你的网关/v1
+    # model: deepseek-v4-flash
+
+# 混合检索 + Rerank 配置（可选覆盖，默认值见 application.yml 的 rag.*）
+# 想体验 LLM 重排（更贴近语义相关性）时，把 strategy 改为 llm：
+# rag:
+#   rerank:
+#     strategy: llm      # heuristic(默认零成本) | llm(需上方 LLM key)
+#     top-n: 6
+#     llm-cap: 10
+#   retrieval:
+#     candidate-multiplier: 3
+#   rrf:
+#     k: 60
+
