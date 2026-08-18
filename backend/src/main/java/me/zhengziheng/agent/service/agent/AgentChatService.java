@@ -113,8 +113,8 @@ public class AgentChatService {
                 // ② 否则（如只有 THOUGHT 没有动作）提示格式重试一次，仍失败则终止走兜底。
                 boolean hasMarkers = raw.contains("THOUGHT") || raw.contains("ACTION") || raw.contains("ANSWER");
                 if (!hasMarkers && raw.trim().length() > 10) {
-                    // 过早放弃拦截：断言"未找到"但全程没检索过 → 强制补一次语义检索再作答
-                    if (looksLikeNotFound(raw) && collected.isEmpty() && forceRetrieve(question, messages, collected)) {
+                    // 未检索拦截：全程没检索过就"直接回答" → 强制补一次语义检索再作答（防模型凭常识编造）
+                    if (collected.isEmpty() && forceRetrieve(question, messages, collected)) {
                         messages.add(new LlmMessage("assistant", raw));
                         messages.add(new LlmMessage("user",
                                 "以上是补充检索到的知识库内容。请基于这些片段重新回答用户问题；若确实与问题无关，再说明未找到。"));
@@ -140,8 +140,8 @@ public class AgentChatService {
             }
 
             if (action.answer != null) {
-                // 过早放弃拦截：ANSWER 是"未找到"形态且从未检索 → 强制补检索后重新回答
-                if (looksLikeNotFound(action.answer) && collected.isEmpty() && forceRetrieve(question, messages, collected)) {
+                // 未检索拦截：从未检索就输出 ANSWER → 强制补检索后重新回答（防凭常识编造）
+                if (collected.isEmpty() && forceRetrieve(question, messages, collected)) {
                     messages.add(new LlmMessage("assistant", action.answer));
                     messages.add(new LlmMessage("user",
                             "以上是补充检索到的知识库内容。请基于这些片段重新回答用户问题；若确实与问题无关，再说明未找到。"));
@@ -222,6 +222,8 @@ public class AgentChatService {
         StringBuilder sb = new StringBuilder();
         sb.append(personaPrompts.personaPrefix())
                 .append("你只能基于检索到的文档内容回答；知识库没有相关信息时如实说明，不要编造。\n")
+                .append("【强制规则】回答任何问题前，第一步必须用 retrieve 工具检索知识库（输出 ACTION: retrieve），\n")
+                .append("拿到候选人的真实经历后再作答；严禁在未检索的情况下凭常识或记忆直接输出 ANSWER。\n")
                 .append("回答末尾用 [1][2] 这样的编号标注引用来源，编号对应【工具结果】里列出的片段编号。\n")
                 .append("回答要简洁、准确。\n\n")
                 .append("可用工具（一次只调用一个）：\n");

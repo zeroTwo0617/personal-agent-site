@@ -18,7 +18,7 @@
     <description>个人 AI 分身站后端</description>
 
     <properties>
-        <java.version>19</java.version>
+        <java.version>17</java.version>
         <mybatis-plus.version>3.5.7</mybatis-plus.version>
         <jjwt.version>0.12.5</jjwt.version>
         <springdoc.version>2.3.0</springdoc.version>
