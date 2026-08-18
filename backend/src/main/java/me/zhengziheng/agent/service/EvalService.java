@@ -34,6 +34,7 @@ public class EvalService {
     private final HybridRetrievalService hybridRetrievalService;
     private final LlmClient llmClient;
     private final ObjectMapper objectMapper;
+    private final PersonaPrompts personaPrompts;
     private final int defaultTopK;
 
     /** 评测集（问题三元组） */
@@ -44,10 +45,12 @@ public class EvalService {
     public EvalService(HybridRetrievalService hybridRetrievalService,
                        LlmClient llmClient,
                        ObjectMapper objectMapper,
+                       PersonaPrompts personaPrompts,
                        @Value("${eval.top-k:6}") int defaultTopK) {
         this.hybridRetrievalService = hybridRetrievalService;
         this.llmClient = llmClient;
         this.objectMapper = objectMapper;
+        this.personaPrompts = personaPrompts;
         this.defaultTopK = defaultTopK;
         this.dataset = loadDataset();
     }
@@ -159,8 +162,7 @@ public class EvalService {
                             .append(s.getContent()).append("\n\n");
                 }
                 List<LlmMessage> msgs = List.of(
-                        new LlmMessage("system", "你是一个严谨的知识库问答助手。只能根据下面提供的【上下文】回答用户问题；"
-                                + "如果上下文没有相关信息，就如实说「知识库中未找到相关内容」。回答要简洁、准确，并在末尾列出引用来源（文档名与章节）。"),
+                        new LlmMessage("system", personaPrompts.systemPrompt()),
                         new LlmMessage("user", "【上下文】\n" + ctx + "\n【问题】" + question)
                 );
                 String answer = llmClient.generate(msgs);
@@ -208,7 +210,8 @@ public class EvalService {
         String a = answer.toLowerCase();
         return a.contains("未找到") || a.contains("未涵盖") || a.contains("没有相关信息")
                 || a.contains("不在知识库") || a.contains("无法回答") || a.contains("未包含")
-                || a.contains("知识库中未");
+                || a.contains("知识库中未") || a.contains("没有这方面的内容") || a.contains("没有相关")
+                || a.contains("建议直接问我本人") || a.contains("没有经历过") || a.contains("简历中未涉及");
     }
 
     private EvalReport aggregate(List<EvalItemResult> items, boolean faithfulnessEnabled, String mode) {
@@ -235,7 +238,10 @@ public class EvalService {
                 .filter(Objects::nonNull).collect(Collectors.toList());
         report.setDocRecall(docList.isEmpty() ? null : mean(docList));
 
-        List<Double> faith = items.stream().map(EvalItemResult::getFaithfulness)
+        // 忠实度：仅统计非 reject 题（拒答类回答不适用忠实度判定，避免"正确拒答被判不忠实"）
+        List<Double> faith = items.stream()
+                .filter(it -> !"reject".equals(it.getType()))
+                .map(EvalItemResult::getFaithfulness)
                 .filter(Objects::nonNull).collect(Collectors.toList());
         report.setFaithfulness(faith.isEmpty() ? null : mean(faith));
 
