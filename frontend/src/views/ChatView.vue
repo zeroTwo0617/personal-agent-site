@@ -60,11 +60,18 @@ async function submit(text?: string) {
         }
         scrollBottom()
       },
+      onThinking: (t) => {
+        ai.thinking = (ai.thinking || '') + t
+        ai.thinkOpen = true   // 思考中保持展开
+        store.persist()
+        scrollBottom()
+      },
       onDone: (payload) => {
         if (!ai.content) ai.content = payload.answer
         ai.sources = payload.sources
         ai.qaId = payload.qaId
         ai.status = 'completed'
+        ai.thinkOpen = false   // 给完答案回收起
         store.persist()
         scrollBottom()
       },
@@ -92,6 +99,10 @@ function newChat() {
 async function feedback(msg: ChatMessage, rating: 1 | -1) {
   if (!msg.qaId) return
   try { await submitFeedback(msg.qaId, rating) } catch { /* 忽略 */ }
+}
+
+function toggleThink(m: ChatMessage) {
+  m.thinkOpen = !m.thinkOpen
 }
 
 const toolLabel: Record<string, string> = {
@@ -137,6 +148,13 @@ const canSend = computed(() => !sending.value && input.value.trim().length > 0 &
               <span class="step-tool">{{ toolName(s.tool) }}</span>
               <span class="step-summary">{{ s.status === 'running' ? '进行中…' : s.summary || '' }}</span>
             </div>
+          </div>
+          <!-- 思考过程：思考中展开、答完自动收起，可点击展开/收起 -->
+          <div v-if="m.thinking" class="think-block">
+            <button class="think-toggle" @click="toggleThink(m)">
+              💭 {{ m.status === 'streaming' ? '思考中…' : '思考过程' }}
+            </button>
+            <div v-if="m.thinkOpen" class="think-content">{{ m.thinking }}</div>
           </div>
           <span v-if="m.content" class="content" style="white-space: pre-wrap">{{ m.content }}</span>
           <span v-else-if="m.status === 'streaming'" class="cursor">▍</span>
@@ -187,6 +205,10 @@ const canSend = computed(() => !sending.value && input.value.trim().length > 0 &
 .bubble { max-width: 78%; background: var(--card); border: 1px solid var(--border); border-radius: 12px; padding: 12px 16px; }
 .msg.user .bubble { background: var(--accent); border: none; }
 .steps { margin-bottom: 8px; display: flex; flex-wrap: wrap; gap: 6px; }
+.think-block { margin-bottom: 8px; border: 1px solid var(--border); border-radius: 8px; overflow: hidden; }
+.think-toggle { width: 100%; text-align: left; background: var(--bg-soft); border: none; color: var(--text-dim); padding: 6px 12px; font-size: 12px; cursor: pointer; }
+.think-toggle:hover { color: var(--text); }
+.think-content { padding: 10px 12px; font-size: 12px; color: var(--text-dim); white-space: pre-wrap; max-height: 240px; overflow-y: auto; border-top: 1px solid var(--border); }
 .step { display: inline-flex; align-items: center; gap: 5px; font-size: 12px; color: var(--text-dim); background: var(--bg-soft); padding: 3px 8px; border-radius: 20px; }
 .step.running .dot { background: var(--warn); animation: pulse 1s infinite; }
 .step.done .dot { background: var(--ok); }

@@ -59,7 +59,7 @@ public class OpenAiLlmClient implements LlmClient {
     }
 
     @Override
-    public void streamGenerate(List<LlmMessage> messages, Consumer<String> onDelta, String mode) throws Exception {
+    public void streamGenerate(List<LlmMessage> messages, Consumer<String> onDelta, Consumer<String> onThinking, String mode) throws Exception {
         if (!available()) {
             throw new IllegalStateException("LLM API key 未配置，无法调用远程大模型");
         }
@@ -97,9 +97,16 @@ public class OpenAiLlmClient implements LlmClient {
                 }
                 try {
                     JsonNode node = objectMapper.readTree(data);
-                    JsonNode delta = node.path("choices").path(0).path("delta").path("content");
-                    if (delta.isTextual() && !delta.asText().isEmpty()) {
-                        onDelta.accept(delta.asText());
+                    JsonNode choice = node.path("choices").path(0).path("delta");
+                    // 答案增量（打字机）
+                    JsonNode content = choice.path("content");
+                    if (content.isTextual() && !content.asText().isEmpty()) {
+                        onDelta.accept(content.asText());
+                    }
+                    // 思考过程增量（DeepSeek reasoning_content，供前端"思考"块）
+                    JsonNode reasoning = choice.path("reasoning_content");
+                    if (onThinking != null && reasoning.isTextual() && !reasoning.asText().isEmpty()) {
+                        onThinking.accept(reasoning.asText());
                     }
                 } catch (Exception e) {
                     // 个别控制行（如注释、心跳）解析失败则跳过，不影响主流程

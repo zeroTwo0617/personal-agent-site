@@ -43,7 +43,7 @@ class AgentChatServiceTest {
         }
 
         @Override
-        public void streamGenerate(List<LlmMessage> messages, Consumer<String> onDelta, String mode) {
+        public void streamGenerate(List<LlmMessage> messages, Consumer<String> onDelta, Consumer<String> onThinking, String mode) {
         }
 
         @Override

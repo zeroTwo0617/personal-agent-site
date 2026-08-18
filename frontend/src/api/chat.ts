@@ -15,6 +15,7 @@ export function openChatStream(
   handlers: {
     onDelta: (text: string) => void
     onAgentStep?: (step: AgentStepEvent) => void
+    onThinking?: (text: string) => void
     onDone: (payload: { sources: ChunkSearchResult[]; answer: string; qaId?: number }) => void
     onError: (msg: string) => void
   }
@@ -49,6 +50,7 @@ export function openChatStream(
                 const evt = JSON.parse(jsonStr)
                 if (evt.type === 'delta') handlers.onDelta(evt.content || '')
                 else if (evt.type === 'agent_step') handlers.onAgentStep?.(evt)
+                else if (evt.type === 'thinking') handlers.onThinking?.(evt.content || '')
                 else if (evt.type === 'done') finish(() => handlers.onDone({ sources: evt.sources || [], answer: evt.answer || '', qaId: evt.qaId }))
                 else if (evt.type === 'error') finish(() => handlers.onError(evt.message || '生成出错'))
               } catch { /* 跳过无法解析的行 */ }

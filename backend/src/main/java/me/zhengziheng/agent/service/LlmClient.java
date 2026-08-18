@@ -17,11 +17,22 @@ public interface LlmClient {
 
     /** 流式生成（normal 档） */
     default void streamGenerate(List<LlmMessage> messages, Consumer<String> onDelta) throws Exception {
-        streamGenerate(messages, onDelta, "normal");
+        streamGenerate(messages, onDelta, null, "normal");
     }
 
     /** 流式生成（指定思考档位） */
-    void streamGenerate(List<LlmMessage> messages, Consumer<String> onDelta, String mode) throws Exception;
+    default void streamGenerate(List<LlmMessage> messages, Consumer<String> onDelta, String mode) throws Exception {
+        streamGenerate(messages, onDelta, null, mode);
+    }
+
+    /**
+     * 流式生成（指定思考档位 + 推理内容回调）。
+     *
+     * @param onDelta    答案增量（打字机效果）
+     * @param onThinking 思考过程增量（如 DeepSeek 的 reasoning_content，用于前端"思考"块），可为 null
+     * @param mode       思考档位（normal/agent）
+     */
+    void streamGenerate(List<LlmMessage> messages, Consumer<String> onDelta, Consumer<String> onThinking, String mode) throws Exception;
 
     /** 非流式生成（normal 档，供 Rerank 打分等场景） */
     default String generate(List<LlmMessage> messages) throws Exception {

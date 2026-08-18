@@ -67,19 +67,27 @@ public class AgentChatService {
      * 运行 Agent 循环（非流式版本，兼容既有调用/测试）。
      */
     public AgentResult run(String question, List<ChatTurn> history, Consumer<AgentStepEvent> onStep) {
-        return run(question, history, onStep, null);
+        return run(question, history, onStep, null, null);
+    }
+
+    /**
+     * 运行 Agent 循环（答案流式，无思考回调）。
+     */
+    public AgentResult run(String question, List<ChatTurn> history, Consumer<AgentStepEvent> onStep, Consumer<String> onDelta) {
+        return run(question, history, onStep, onDelta, null);
     }
 
     /**
      * 运行 Agent 循环。
      *
-     * @param question 用户问题
-     * @param history  多轮对话历史（可为空）
-     * @param onStep   每步工具执行事件回调（SSE 推送用，可为 null）
-     * @param onDelta  最终答案增量回调（SSE 逐字流式用，可为 null；null 时与非流式一致）
+     * @param question  用户问题
+     * @param history   多轮对话历史（可为空）
+     * @param onStep    每步工具执行事件回调（SSE 推送用，可为 null）
+     * @param onDelta   最终答案增量回调（SSE 逐字流式用，可为 null；null 时与非流式一致）
+     * @param onThinking 最终答案的思考过程增量回调（DeepSeek reasoning_content，前端"思考"块用，可为 null）
      * @return Agent 结果（答案 + 引用 + 轨迹）
      */
-    public AgentResult run(String question, List<ChatTurn> history, Consumer<AgentStepEvent> onStep, Consumer<String> onDelta) {
+    public AgentResult run(String question, List<ChatTurn> history, Consumer<AgentStepEvent> onStep, Consumer<String> onDelta, Consumer<String> onThinking) {
         AgentResult result = new AgentResult();
         List<ChunkSearchResult> collected = new ArrayList<>();
         List<AgentStepEvent> trace = new ArrayList<>();
@@ -128,7 +136,7 @@ public class AgentChatService {
                                 "以上是补充检索到的知识库内容。请基于这些片段重新回答用户问题；若确实与问题无关，再说明未找到。"));
                         continue;
                     }
-                    String streamed = streamFinalAnswer(messages, onDelta);
+                    String streamed = streamFinalAnswer(messages, onDelta, onThinking);
                     finalAnswer = (streamed != null) ? streamed : raw.trim();
                     break;
                 }
@@ -156,7 +164,7 @@ public class AgentChatService {
                             "以上是补充检索到的知识库内容。请基于这些片段重新回答用户问题；若确实与问题无关，再说明未找到。"));
                     continue;
                 }
-                String streamed = streamFinalAnswer(messages, onDelta);
+                String streamed = streamFinalAnswer(messages, onDelta, onThinking);
                 finalAnswer = (streamed != null) ? streamed : action.answer;
                 break;
             }
@@ -313,7 +321,7 @@ public class AgentChatService {
      * 与循环内 generate() 解析出的答案可能略有差异（非确定性），以流式累计文本为准（所见即所存）。
      * 失败（LLM 异常/空输出）返回 null，调用方回退已解析答案。
      */
-    private String streamFinalAnswer(List<LlmMessage> messages, Consumer<String> onDelta) {
+    private String streamFinalAnswer(List<LlmMessage> messages, Consumer<String> onDelta, Consumer<String> onThinking) {
         try {
             StringBuilder acc = new StringBuilder();
             llmClient.streamGenerate(messages, delta -> {
@@ -321,7 +329,7 @@ public class AgentChatService {
                 if (onDelta != null) {
                     onDelta.accept(delta);
                 }
-            }, "agent");
+            }, onThinking, "agent");
             String answer = acc.toString();
             return (answer == null || answer.isBlank()) ? null : answer.trim();
         } catch (Exception e) {

@@ -340,7 +340,8 @@ public class ChatTaskService {
                         task.setAnswer(streamed.toString());   // 轮询路径也能看到流式进度
                     }
                     pushDelta(taskId, delta);
-                });
+                },
+                thinking -> pushThinking(taskId, thinking));
 
         task.setAnswer(ar.getAnswer());
         task.setSources(ar.getSources() == null ? List.of() : ar.getSources());
@@ -382,6 +383,20 @@ public class ChatTaskService {
         try {
             em.send(SseEmitter.event().name("delta")
                     .data(objectMapper.writeValueAsString(Map.of("type", "delta", "content", delta))));
+        } catch (Exception e) {
+            emitters.remove(taskId);
+        }
+    }
+
+    /** 推送思考过程增量（agent 模式最终答案的 reasoning_content，前端"思考"块用） */
+    private void pushThinking(String taskId, String thinking) {
+        SseEmitter em = emitters.get(taskId);
+        if (em == null) {
+            return;
+        }
+        try {
+            em.send(SseEmitter.event().name("delta")
+                    .data(objectMapper.writeValueAsString(Map.of("type", "thinking", "content", thinking))));
         } catch (Exception e) {
             emitters.remove(taskId);
         }

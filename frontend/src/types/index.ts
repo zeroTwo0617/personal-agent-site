@@ -48,6 +48,8 @@ export interface ChatMessage {
   sources?: ChunkSearchResult[]
   agentSteps?: AgentStepEvent[]
   qaId?: number
+  thinking?: string
+  thinkOpen?: boolean
 }
 
 export interface FeedbackStatsVO {
