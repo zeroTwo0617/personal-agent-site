@@ -249,7 +249,8 @@ public class AgentChatService {
         for (int i = 0; i < collected.size(); i++) {
             ChunkSearchResult c = collected.get(i);
             sb.append("[").append(i + 1).append("] 来自《").append(c.getDocName() == null ? "?" : c.getDocName())
-                    .append("》「").append(c.getSection() == null ? "" : c.getSection()).append("」：\n")
+                    .append("》(docId=").append(c.getDocId() == null ? "?" : c.getDocId()).append(")「")
+                    .append(c.getSection() == null ? "" : c.getSection()).append("」：\n")
                     .append(c.getContent()).append("\n\n");
         }
         if (!hasNew) {
