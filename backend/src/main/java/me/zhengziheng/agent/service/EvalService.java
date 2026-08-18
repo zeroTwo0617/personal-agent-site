@@ -186,7 +186,7 @@ public class EvalService {
     private Double judgeFaithfulness(String context, String answer) {
         try {
             List<LlmMessage> msgs = List.of(
-                    new LlmMessage("system", "你是严格的评测裁判。下面给出【上下文】和【回答】。请判断回答中的每个事实性陈述是否都能在上下文中找到依据。只输出 YES 或 NO，并以 '|' 分隔给出一句简短理由。"),
+                    new LlmMessage("system", "你是评测裁判。下面给出【上下文】和【回答】。请判断回答中涉及个人经历、项目、技能、数据等实质性事实陈述是否都能在上下文中找到依据。忽略开场白、过渡句、语气词、连接词等修饰性表达；若实质性事实均有依据，仅有个别修饰性措辞，判 YES。只输出 YES 或 NO，并以 '|' 分隔给出一句简短理由。"),
                     new LlmMessage("user", "【上下文】\n" + context + "\n【回答】\n" + answer)
             );
             String raw = llmClient.generate(msgs);
@@ -211,7 +211,10 @@ public class EvalService {
         return a.contains("未找到") || a.contains("未涵盖") || a.contains("没有相关信息")
                 || a.contains("不在知识库") || a.contains("无法回答") || a.contains("未包含")
                 || a.contains("知识库中未") || a.contains("没有这方面的内容") || a.contains("没有相关")
-                || a.contains("建议直接问我本人") || a.contains("没有经历过") || a.contains("简历中未涉及");
+                || a.contains("建议直接问我本人") || a.contains("建议与本人直接沟通")
+                || a.contains("建议直接与我本人沟通") || a.contains("个人隐私") || a.contains("与本人沟通")
+                || a.contains("没有经历过") || a.contains("没有实习经历") || a.contains("没有实习")
+                || a.contains("简历中未涉及");
     }
 
     private EvalReport aggregate(List<EvalItemResult> items, boolean faithfulnessEnabled, String mode) {

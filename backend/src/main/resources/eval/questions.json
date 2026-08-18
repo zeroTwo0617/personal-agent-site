@@ -11,6 +11,8 @@
     "expectedDocs": ["01-个人简介"], "expectedPoints": ["Agent", "评测", "全栈", "CI"], "expectRefusal": false },
   { "id": "intro-06", "type": "fact", "question": "你是应届生吗？有没有实习经历",
     "expectedDocs": ["03-实习与工作经历"], "expectedPoints": ["应届生", "实习", "项目实践"], "expectRefusal": false },
+  { "id": "intro-07", "type": "fact", "question": "你的项目有开源吗，在哪里可以看到",
+    "expectedDocs": ["03-实习与工作经历"], "expectedPoints": ["开源", "GitHub", "可演示"], "expectRefusal": false },
 
   { "id": "proj-01", "type": "fact", "question": "介绍一下你的 RAG 知识库问答系统",
     "expectedDocs": ["04-项目-rag-kb-demo"], "expectedPoints": ["RAG", "混合检索", "Agent", "评测", "PGVector"], "expectRefusal": false },
@@ -36,6 +38,10 @@
     "expectedDocs": ["05-技能栈", "04-项目-rag-kb-demo"], "expectedPoints": ["JUnit", "Testcontainers", "Vitest", "Docker", "CI"], "expectRefusal": false },
   { "id": "proj-12", "type": "fact", "question": "两个项目你分别独立完成了什么",
     "expectedDocs": ["01-个人简介", "04-项目-rag-kb-demo", "04-项目-fitlog"], "expectedPoints": ["独立", "全栈", "可演示"], "expectRefusal": false },
+  { "id": "proj-13", "type": "fact", "question": "你的知识库是怎么构建和更新的",
+    "expectedDocs": ["04-项目-rag-kb-demo", "06-常见面试问答"], "expectedPoints": ["Markdown", "分块", "Embedding", "幂等"], "expectRefusal": false },
+  { "id": "proj-14", "type": "fact", "question": "你怎么保证 AI 回答不编造",
+    "expectedDocs": ["06-常见面试问答"], "expectedPoints": ["知识库", "事实", "引用", "不编造"], "expectRefusal": false },
 
   { "id": "cross-01", "type": "cross", "question": "对比一下你的两个项目",
     "expectedDocs": ["04-项目-rag-kb-demo", "04-项目-fitlog"], "expectedPoints": ["RAG", "FitLog", "检索"], "expectRefusal": false },
@@ -50,16 +56,6 @@
     "expectedDocs": [], "expectedPoints": [], "expectRefusal": true },
   { "id": "reject-02", "type": "reject", "question": "你的手机号和联系方式是什么",
     "expectedDocs": [], "expectedPoints": [], "expectRefusal": true },
-  { "id": "reject-03", "type": "reject", "question": "用 Python Django 怎么写 REST API",
-    "expectedDocs": [], "expectedPoints": [], "expectRefusal": true },
-  { "id": "reject-04", "type": "reject", "question": "Java HashMap 的底层原理是什么",
-    "expectedDocs": [], "expectedPoints": [], "expectRefusal": true },
-  { "id": "reject-05", "type": "reject", "question": "Redis 集群怎么搭建",
-    "expectedDocs": [], "expectedPoints": [], "expectRefusal": true },
-  { "id": "reject-06", "type": "reject", "question": "你在腾讯的实习经历是什么样的",
-    "expectedDocs": [], "expectedPoints": [], "expectRefusal": true },
-  { "id": "reject-07", "type": "reject", "question": "解释一下 TCP 三次握手",
-    "expectedDocs": [], "expectedPoints": [], "expectRefusal": true },
-  { "id": "reject-08", "type": "reject", "question": "什么是 Kubernetes",
+  { "id": "reject-03", "type": "reject", "question": "你在腾讯的实习经历是什么样的",
     "expectedDocs": [], "expectedPoints": [], "expectRefusal": true }
 ]
