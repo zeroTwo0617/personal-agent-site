@@ -6,6 +6,7 @@ import me.zhengziheng.agent.dto.response.ChunkSearchResult;
 import me.zhengziheng.agent.service.HybridRetrievalService;
 import me.zhengziheng.agent.service.LlmClient;
 import me.zhengziheng.agent.service.LlmMessage;
+import me.zhengziheng.agent.service.PersonaPrompts;
 import org.junit.jupiter.api.Test;
 
 import java.util.ArrayList;
@@ -42,11 +43,11 @@ class AgentChatServiceTest {
         }
 
         @Override
-        public void streamGenerate(List<LlmMessage> messages, Consumer<String> onDelta) {
+        public void streamGenerate(List<LlmMessage> messages, Consumer<String> onDelta, String mode) {
         }
 
         @Override
-        public String generate(List<LlmMessage> messages) {
+        public String generate(List<LlmMessage> messages, String mode) {
             return idx < responses.size() ? responses.get(idx++) : "ANSWER: 兜底";
         }
     }
@@ -112,7 +113,7 @@ class AgentChatServiceTest {
     private final HybridRetrievalService retrieval = org.mockito.Mockito.mock(HybridRetrievalService.class);
 
     private AgentChatService service(LlmClient llm) {
-        return new AgentChatService(new AgentToolRegistry(List.of(new EchoTool(), new BoomTool())), llm, retrieval);
+        return new AgentChatService(new AgentToolRegistry(List.of(new EchoTool(), new BoomTool())), llm, retrieval, new PersonaPrompts());
     }
 
     /** 造一个带内容的检索命中（补充检索/引用收集用） */
