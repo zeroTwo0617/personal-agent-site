@@ -120,8 +120,9 @@ function fmt(s?: string) { return s ? new Date(s).toLocaleString() : '-' }
 .login { max-width: 320px; margin: 80px auto; display: flex; flex-direction: column; gap: 12px; text-align: center; }
 .err { color: var(--err); font-size: 13px; }
 .bar { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; }
-.ghost { background: transparent; border: 1px solid var(--border); color: var(--text-dim); }
-.panel { background: var(--card); border: 1px solid var(--border); border-radius: 12px; padding: 20px; margin-bottom: 20px; }
+.ghost { background: transparent; border: 1px solid var(--border-strong); color: var(--text-dim); }
+.ghost:hover { background: var(--hover); color: var(--text); }
+.panel { background: var(--card); border: 1px solid var(--border); border-radius: var(--radius-lg); padding: 20px; margin-bottom: 20px; }
 .panel h2 { margin-bottom: 12px; font-size: 18px; }
 .stats { display: flex; gap: 24px; color: var(--text-dim); }
 .neg-item { border-top: 1px solid var(--border); padding: 8px 0; }

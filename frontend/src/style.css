@@ -1,15 +1,41 @@
+/* ============================================================
+   设计令牌 —— 仿 DeepSeek Harness (dsh) 设计系统 · 浅色主题
+   dsh 浅色模式：白底 neutral-bluish-00 / 主色 deepseek-500
+   发丝黑边框 rgba(0,0,0,.08) / 交互悬浮 rgba(38,49,72,.06)
+   （深色版令牌保留在文末注释，想切回直接替换即可）
+   ============================================================ */
 :root {
-  --bg: #0b0f1a;
-  --bg-soft: #131a2b;
-  --card: #16203a;
-  --border: #24304f;
-  --text: #e6ebf5;
-  --text-dim: #8b96b3;
-  --accent: #4f6ef7;
-  --accent-soft: #6d84ff;
-  --ok: #34c77b;
-  --warn: #f0a63a;
-  --err: #ef5d6c;
+  /* 背景体系 (dsw neutral-bluish 浅色阶) */
+  --bg: #ffffff;                       /* 页面底 (00) */
+  --bg-soft: #f5f6f7;                  /* 顶栏/输入条 (60) */
+  --card: #f9fafb;                     /* 卡片 (50) */
+  --card-hover: #f1f3f5;               /* 卡片悬浮 (75) */
+  --border: rgba(0, 0, 0, 0.08);       /* dsh 浅色发丝边框 */
+  --border-strong: rgba(0, 0, 0, 0.14);
+  --hover: rgba(38, 49, 72, 0.06);     /* dsh 浅色交互悬浮色 */
+
+  /* 文本 (neutral-bluish) */
+  --text: #0f1115;                     /* 主文本 (1000) */
+  --text-dim: #61666b;                 /* 次级 (700) */
+  --text-faint: #81858c;               /* 弱化 (600) */
+
+  /* 主色：DeepSeek 蓝（浅色模式用 500 阶，对比度更高） */
+  --accent: #4176e6;                   /* deepseek-500 */
+  --accent-strong: #4868b2;            /* deepseek-600 */
+  --accent-soft: #4868b2;              /* 链接/引用色（浅底需深蓝） */
+  --accent-hover: #679efe;             /* deepseek-400 */
+
+  /* 语义色（浅色阶） */
+  --ok: #22c55e;
+  --warn: #dd8629;                     /* amber-600 */
+  --err: #ef4444;
+
+  /* 字体 / 圆角 / 动效（与 dsh 一致） */
+  --font-code: "SF Mono", "JetBrains Mono", "Fira Code", Consolas, "Liberation Mono", Menlo, "PingFang SC", "Microsoft YaHei", monospace;
+  --radius-lg: 12px;                   /* dsh 卡片/终端统一 12px */
+  --radius-md: 8px;
+  --ease: cubic-bezier(0.4, 0, 0.2, 1);
+  --dur: 0.2s;
 }
 
 * { box-sizing: border-box; margin: 0; padding: 0; }
@@ -19,37 +45,61 @@ html, body, #app { height: 100%; }
 body {
   background: var(--bg);
   color: var(--text);
-  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'PingFang SC', 'Microsoft YaHei', sans-serif;
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "PingFang SC", "Hiragino Sans GB", "Microsoft YaHei", "Helvetica Neue", Helvetica, Arial, sans-serif;
   -webkit-font-smoothing: antialiased;
   line-height: 1.6;
 }
 
-a { color: var(--accent-soft); text-decoration: none; }
-a:hover { text-decoration: underline; }
+::selection { background: rgba(65, 118, 230, 0.18); }
+
+/* dsh 细滚动条（浅色） */
+::-webkit-scrollbar { width: 8px; height: 8px; }
+::-webkit-scrollbar-track { background: transparent; }
+::-webkit-scrollbar-thumb { background: rgba(0, 0, 0, 0.16); border-radius: 4px; }
+::-webkit-scrollbar-thumb:hover { background: rgba(0, 0, 0, 0.26); }
+
+a { color: var(--accent-soft); text-decoration: none; transition: color var(--dur) var(--ease); }
+a:hover { color: var(--accent); text-decoration: none; }
 
 button {
   cursor: pointer;
   border: none;
-  border-radius: 8px;
+  border-radius: var(--radius-md);
   font-size: 14px;
   padding: 10px 18px;
   background: var(--accent);
   color: #fff;
-  transition: background 0.15s;
+  transition: background var(--dur) var(--ease), border-color var(--dur) var(--ease), color var(--dur) var(--ease);
 }
-button:hover { background: var(--accent-soft); }
-button:disabled { background: #2a3656; color: var(--text-dim); cursor: not-allowed; }
+button:hover { background: var(--accent-hover); }
+button:disabled { background: var(--card-hover); color: var(--text-faint); cursor: not-allowed; }
 
 input, textarea {
   background: var(--bg-soft);
-  border: 1px solid var(--border);
-  border-radius: 8px;
+  border: 1px solid var(--border-strong);
+  border-radius: var(--radius-md);
   color: var(--text);
   padding: 10px 12px;
   font-size: 14px;
   font-family: inherit;
   outline: none;
+  transition: border-color var(--dur) var(--ease), box-shadow var(--dur) var(--ease);
 }
-input:focus, textarea:focus { border-color: var(--accent); }
+input:focus, textarea:focus {
+  border-color: var(--accent);
+  box-shadow: 0 0 0 3px rgba(65, 118, 230, 0.15);
+}
 
 .container { max-width: 1080px; margin: 0 auto; padding: 0 20px; }
+
+/* ============================================================
+   深色版令牌（dsh 原版）—— 切回深色时用下面这段替换 :root 里的值
+   --bg: #151517;  --bg-soft: #1b1b1c;  --card: #2c2c2e;  --card-hover: #353638;
+   --border: rgba(255,255,255,.06);  --border-strong: rgba(255,255,255,.12);
+   --hover: rgba(255,255,255,.08);
+   --text: #f9fafb;  --text-dim: #81858c;  --text-faint: #61666b;
+   --accent: #5686fe;  --accent-strong: #4176e6;  --accent-soft: #b7c8fe;  --accent-hover: #679efe;
+   --ok: #22c55e;  --warn: #f59e0b;  --err: #ef4444;
+   另：::selection → rgba(86,134,254,.4)；滚动条 thumb → rgba(255,255,255,.14)/.24；
+       focus ring → rgba(86,134,254,.15)
+   ============================================================ */

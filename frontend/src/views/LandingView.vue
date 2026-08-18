@@ -54,22 +54,28 @@ import { profile } from '@/data/profile'
 <style scoped>
 .landing { max-width: 860px; margin: 0 auto; padding: 0 20px; }
 .hero { text-align: center; padding: 80px 0 60px; }
-.hero h1 { font-size: 42px; margin-bottom: 8px; }
-.title { color: var(--accent-soft); font-size: 18px; margin-bottom: 12px; }
+.hero h1 { font-size: 42px; margin-bottom: 8px; letter-spacing: -0.5px; }
+.title { color: var(--accent); font-size: 18px; font-weight: 500; margin-bottom: 12px; }
 .tagline { color: var(--text-dim); margin-bottom: 32px; }
-.cta { font-size: 16px; padding: 14px 28px; }
+.cta { font-size: 16px; padding: 14px 32px; }
 .block { padding: 32px 0; border-top: 1px solid var(--border); }
 .block h2 { margin-bottom: 16px; }
 .skills { display: grid; grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); gap: 12px; }
-.skill { background: var(--card); border: 1px solid var(--border); border-radius: 10px; padding: 16px; }
+.skill, .project {
+  background: var(--card); border: 1px solid var(--border); border-radius: var(--radius-lg); padding: 16px;
+  transition: border-color var(--dur) var(--ease), background var(--dur) var(--ease), transform var(--dur) var(--ease);
+}
+.skill:hover, .project:hover { border-color: var(--border-strong); background: var(--card-hover); transform: translateY(-1px); }
 .skill-name { color: var(--accent-soft); font-weight: 600; margin-bottom: 6px; }
 .skill-desc { font-size: 13px; color: var(--text-dim); }
 .projects { display: grid; gap: 12px; }
-.project { background: var(--card); border: 1px solid var(--border); border-radius: 10px; padding: 18px; }
+.project { padding: 18px; }
 .project h3 { margin-bottom: 8px; }
 .project p { color: var(--text-dim); margin-bottom: 8px; }
-.tech { font-size: 13px; color: var(--accent-soft); }
+.tech { font-size: 12px; color: var(--text-dim); font-family: var(--font-code); }
 .footer { padding: 40px 0; text-align: center; border-top: 1px solid var(--border); }
 .socials { display: flex; gap: 16px; justify-content: center; margin-bottom: 16px; }
-.privacy { font-size: 12px; color: var(--text-dim); }
+.socials a { color: var(--text-dim); }
+.socials a:hover { color: var(--accent); }
+.privacy { font-size: 12px; color: var(--text-faint); }
 </style>
