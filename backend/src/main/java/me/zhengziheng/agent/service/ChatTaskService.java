@@ -327,11 +327,20 @@ public class ChatTaskService {
         }
     }
 
-    /** Agent 模式任务执行：多步 检索→反思→再检索→生成；每步工具调用实时推 agent_step 事件 */
+    /** Agent 模式任务执行：多步 检索→反思→再检索→生成；每步工具调用实时推 agent_step 事件，最终答案逐字流式 */
     private void runAgentTask(String taskId, ChatTaskResult task, String question,
                               List<ChatTurn> history, String username) {
         task.setStatus("generating");
-        AgentResult ar = agentChatService.run(question, history, evt -> pushAgentStep(taskId, evt));
+        StringBuilder streamed = new StringBuilder();
+        AgentResult ar = agentChatService.run(question, history,
+                evt -> pushAgentStep(taskId, evt),
+                delta -> {
+                    synchronized (task) {
+                        streamed.append(delta);
+                        task.setAnswer(streamed.toString());   // 轮询路径也能看到流式进度
+                    }
+                    pushDelta(taskId, delta);
+                });
 
         task.setAnswer(ar.getAnswer());
         task.setSources(ar.getSources() == null ? List.of() : ar.getSources());
@@ -359,6 +368,20 @@ public class ChatTaskService {
         }
         try {
             em.send(SseEmitter.event().name("delta").data(objectMapper.writeValueAsString(evt)));
+        } catch (Exception e) {
+            emitters.remove(taskId);
+        }
+    }
+
+    /** 推送答案增量文本（agent 模式最终答案流式） */
+    private void pushDelta(String taskId, String delta) {
+        SseEmitter em = emitters.get(taskId);
+        if (em == null) {
+            return;
+        }
+        try {
+            em.send(SseEmitter.event().name("delta")
+                    .data(objectMapper.writeValueAsString(Map.of("type", "delta", "content", delta))));
         } catch (Exception e) {
             emitters.remove(taskId);
         }
