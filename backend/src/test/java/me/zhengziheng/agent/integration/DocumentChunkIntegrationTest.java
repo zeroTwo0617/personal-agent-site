@@ -87,7 +87,7 @@ class DocumentChunkIntegrationTest {
 
         List<String> versions = jdbcTemplate.queryForList(
                 "SELECT version FROM flyway_schema_history ORDER BY installed_rank", String.class);
-        assertEquals(List.of("1", "2", "3", "4"), versions, "V1~V4 迁移应全部执行");
+        assertEquals(List.of("1", "2", "3", "4", "5"), versions, "V1~V5 迁移应全部执行");
     }
 
     @Test
