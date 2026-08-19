@@ -160,7 +160,7 @@ public class AgentChatService {
                 continue;
             }
 
-            if (action.answer != null) {
+            if (action.answer != null && !containsReActMarker(action.answer)) {
                 // 未检索拦截：从未检索就输出 ANSWER → 强制补检索后重新回答（防凭常识编造）
                 if (collected.isEmpty() && forceRetrieve(question, messages, collected)) {
                     messages.add(new LlmMessage("assistant", action.answer));
@@ -171,6 +171,19 @@ public class AgentChatService {
                 String streamed = streamFinalAnswer(messages, onDelta, onThinking);
                 finalAnswer = (streamed != null) ? streamed : action.answer;
                 break;
+            }
+            if (action.answer != null) {
+                // ANSWER 里混入了 THOUGHT/ACTION/ACTION_INPUT 标记 → 格式错误：回填原始输出并提示重试一次
+                messages.add(new LlmMessage("assistant", raw));
+                if (!formatRetried) {
+                    formatRetried = true;
+                    messages.add(new LlmMessage("user",
+                            "你的 ANSWER 内容里混入了 THOUGHT/ACTION/ACTION_INPUT 标记。请把最终答案直接写在 ANSWER: 后面，"
+                                    + "内容中不要再出现任何 THOUGHT/ACTION/ACTION_INPUT 前缀，也不要粘贴你之前用过的 ACTION 行。"));
+                } else {
+                    break;
+                }
+                continue;
             }
 
             // 工具调用
@@ -240,6 +253,13 @@ public class AgentChatService {
             }
         }
 
+        // 防御：最终答案若残留 ReAct 标记（THOUGHT/ACTION 前缀泄漏）则清洗；洗空则用已检索内容兜底
+        finalAnswer = stripReActMarkers(finalAnswer);
+        if (finalAnswer == null || finalAnswer.isBlank()) {
+            finalAnswer = fallbackAnswer(collected, question);
+            result.setFallbackReason("答案含 ReAct 标记已清洗为空，改用已检索内容作答");
+        }
+
         result.setAnswer(finalAnswer);
         result.setSources(collected);
         result.setSteps(toolSteps);
@@ -288,7 +308,9 @@ public class AgentChatService {
                 .append("ACTION: 工具名\n")
                 .append("ACTION_INPUT: {\"参数名\": \"值\"}\n")
                 .append("或信息足够时：\n")
-                .append("ANSWER: 最终答案");
+                .append("ANSWER: 最终答案\n")
+                .append("注意：ANSWER 后面的内容就是最终答案本体，里面禁止再出现 THOUGHT/ACTION/ACTION_INPUT 等标记前缀；\n")
+                .append("也不要重复粘贴你之前用过的 ACTION 行。");
         return sb.toString();
     }
 
@@ -364,12 +386,43 @@ public class AgentChatService {
                     onDelta.accept(delta);
                 }
             }, onThinking, "agent");
-            String answer = acc.toString();
-            return (answer == null || answer.isBlank()) ? null : answer.trim();
+            String answer = stripReActMarkers(acc.toString());
+            return (answer == null || answer.isBlank()) ? null : answer;
         } catch (Exception e) {
-            log.warn("Agent 最终答案流式生成失败，回退已解析答案: {}", e.getMessage());
+            log.warn("Agent 最终答案流式生成失败，回退已解析答案: {}", e.toString());
             return null;
         }
+    }
+
+    /** 答案中是否残留 ReAct 标记行（THOUGHT/ACTION/ANSWER 前缀）——混入即视为格式错误 */
+    private static boolean containsReActMarker(String text) {
+        if (text == null) {
+            return false;
+        }
+        for (String line : text.split("\n")) {
+            String t = line.trim();
+            if (t.startsWith("THOUGHT") || t.startsWith("ACTION") || t.startsWith("ANSWER")) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    /** 去掉泄漏进答案的 ReAct 标记行（如 "ACTION: retrieve"）；全为标记时返回 null */
+    private static String stripReActMarkers(String text) {
+        if (text == null) {
+            return null;
+        }
+        StringBuilder sb = new StringBuilder();
+        for (String line : text.split("\n")) {
+            String t = line.trim();
+            if (t.startsWith("THOUGHT") || t.startsWith("ACTION") || t.startsWith("ANSWER")) {
+                continue;
+            }
+            sb.append(line).append("\n");
+        }
+        String cleaned = sb.toString().trim();
+        return cleaned.isEmpty() ? null : cleaned;
     }
 
     /** 去重收集：docId#chunkIndex 维度 */
