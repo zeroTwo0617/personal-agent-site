@@ -6,7 +6,7 @@ package me.zhengziheng.agent.service;
  */
 public interface EmbeddingClient {
 
-    /** 文本 -> 向量（维度见配置 embedding.dim，默认 1536） */
+    /** 文本 -> 向量（维度见配置 embedding.dim，默认 1024，与 bge-m3 / schema vector(1024) 对齐） */
     float[] embed(String text);
 
     /** 实现名称（用于日志/调试） */

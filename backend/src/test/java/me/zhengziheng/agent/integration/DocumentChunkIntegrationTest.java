@@ -58,9 +58,9 @@ class DocumentChunkIntegrationTest {
         jdbcTemplate.execute("TRUNCATE chunk, document RESTART IDENTITY CASCADE");
     }
 
-    /** 生成 1536 维测试向量（与 schema vector(1536) 对齐） */
+    /** 生成 1024 维测试向量（与 schema vector(1024)、bge-m3 维度对齐） */
     private float[] vec(double seed) {
-        float[] v = new float[1536];
+        float[] v = new float[1024];
         for (int i = 0; i < v.length; i++) {
             v[i] = (float) Math.sin(i + seed);
         }
