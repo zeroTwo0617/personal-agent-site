@@ -23,7 +23,7 @@ public interface QaLogMapper extends BaseMapper<QaLog> {
      */
     @Select("""
             INSERT INTO qa_log (username, question, answer, sources)
-            VALUES (#{username}, #{question}, #{answer}, CAST(#{sources} AS jsonb))
+            VALUES (#{username}, #{question}, #{answer}, CAST(COALESCE(#{sources}, '[]') AS jsonb))
             RETURNING id
             """)
     Long insertLog(QaLog log);

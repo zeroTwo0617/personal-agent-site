@@ -44,6 +44,9 @@ public class AgentChatService {
     /** 收集的引用片段上限（控制上下文体积） */
     private static final int MAX_CHUNKS = 30;
 
+    /** 单次 LLM 调用失败后的重试次数（Connection reset 等瞬时网络错误常见） */
+    private static final int MAX_LLM_RETRIES = 2;
+
     /** "未找到/未检索到"类过早放弃的识别：命中且从未检索过时，强制补一次语义检索再作答 */
     private static final Pattern NOT_FOUND_PATTERN = Pattern.compile(
             "未找到|未检索到|没有.*(相关|对应|关于).*|无法.*(回答|给出|对比)|不存在|未涵盖");
@@ -109,12 +112,13 @@ public class AgentChatService {
         int step = 0;
         int toolSteps = 0;
         boolean formatRetried = false;
+        boolean llmFailed = false;
         for (; step < MAX_STEPS; step++) {
             String raw;
             try {
-                raw = llmClient.generate(messages, "agent");
+                raw = generateWithRetry(messages);
             } catch (Exception e) {
-                log.warn("Agent LLM 调用失败: {}", e.getMessage());
+                log.warn("Agent LLM 调用失败（已重试 {} 次）: {}", MAX_LLM_RETRIES, e.getMessage());
                 break;
             }
             if (raw == null || raw.isBlank()) {
@@ -222,10 +226,18 @@ public class AgentChatService {
 
         // 3) 收敛：未给出 ANSWER（步数耗尽 / LLM 失败）→ 用已收集内容兜底拼答案
         if (finalAnswer == null) {
-            finalAnswer = fallbackAnswer(collected, question);
-            result.setFallbackReason(step >= MAX_STEPS
-                    ? "达到步数上限（" + MAX_STEPS + " 步），已用已检索内容作答"
-                    : "Agent 未收敛，已用已检索内容作答");
+            if (llmFailed) {
+                // 大模型不可用是服务端瞬时问题，不要误报成"知识库未找到"
+                result.setFallbackReason("LLM 调用失败，已重试 " + MAX_LLM_RETRIES + " 次");
+                finalAnswer = collected.isEmpty()
+                        ? "抱歉，AI 分身暂时开小差了（大模型连接失败），请稍后重试。"
+                        : fallbackAnswer(collected, question);
+            } else {
+                finalAnswer = fallbackAnswer(collected, question);
+                result.setFallbackReason(step >= MAX_STEPS
+                        ? "达到步数上限（" + MAX_STEPS + " 步），已用已检索内容作答"
+                        : "Agent 未收敛，已用已检索内容作答");
+            }
         }
 
         result.setAnswer(finalAnswer);
@@ -234,6 +246,28 @@ public class AgentChatService {
         result.setTrace(trace);
         return result;
     }
+
+    /** 调用 Agent 非流式 LLM，并对瞬时网络错误（如 Connection reset）做有限重试 */
+    private String generateWithRetry(List<LlmMessage> messages) throws Exception {
+        Exception last = null;
+        for (int i = 0; i <= MAX_LLM_RETRIES; i++) {
+            try {
+                return llmClient.generate(messages, "agent");
+            } catch (Exception e) {
+                last = e;
+                if (i < MAX_LLM_RETRIES) {
+                    try {
+                        Thread.sleep(300L * (i + 1));
+                    } catch (InterruptedException ie) {
+                        Thread.currentThread().interrupt();
+                        throw e;
+                    }
+                }
+            }
+        }
+        throw last;
+    }
+
 
     /** 系统提示词：人设 + 工具清单（即提示工程，决定 LLM 会不会/会不会用错工具） */
     private String buildSystemPrompt() {

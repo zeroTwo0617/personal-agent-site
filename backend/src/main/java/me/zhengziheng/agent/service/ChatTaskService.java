@@ -476,7 +476,7 @@ public class ChatTaskService {
         } catch (Exception e) {
             // 历史记录失败不影响问答主流程；但记 WARN 便于排查「为什么没有历史」
             // （常见原因：V2__qa_log.sql 迁移未生效、数据库未重启后端、sources JSON 非法）
-            log.warn("问答历史落库失败（不影响本次回答）: {}", e.getMessage());
+            log.warn("问答历史落库失败（不影响本次回答）: {} - {}", e.getClass().getSimpleName(), e.getMessage(), e);
             return null;
         }
     }
