@@ -20,12 +20,12 @@ request.interceptors.response.use(
   }
 )
 
-export function post<T>(url: string, data?: unknown): Promise<Result<T>> {
-  return request.post(url, data) as unknown as Promise<Result<T>>
+export function post<T>(url: string, data?: unknown, config?: Record<string, unknown>): Promise<Result<T>> {
+  return request.post(url, data, config) as unknown as Promise<Result<T>>
 }
 
-export function get<T>(url: string, params?: unknown): Promise<Result<T>> {
-  return request.get(url, { params }) as unknown as Promise<Result<T>>
+export function get<T>(url: string, params?: unknown, config?: Record<string, unknown>): Promise<Result<T>> {
+  return request.get(url, { params, ...config }) as unknown as Promise<Result<T>>
 }
 
 export default request

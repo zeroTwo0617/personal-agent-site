@@ -21,9 +21,9 @@ export function rebuildKb() {
   return post<KbStatus>('/admin/kb/rebuild')
 }
 
-/** 跑评测集（GET 也行，后端同时支持 GET/POST）；返回本次报告 */
+/** 跑评测集（GET 也行，后端同时支持 GET/POST）；返回本次报告。评测需 2-4 分钟，单独加长超时 */
 export function runEval(topK = 6, mode = 'hybrid') {
-  return get<EvalReport>('/eval/run', { topK, mode })
+  return get<EvalReport>('/eval/run', { topK, mode }, { timeout: 600000 })
 }
 
 /** 最近一次评测报告 */
