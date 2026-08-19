@@ -56,15 +56,25 @@ public class KbSeedService implements ApplicationRunner {
         }
     }
 
-    /** 重建知识库：扫描 kb 目录，逐文件按 hash 幂等灌入 */
+    /** 重建知识库：扫描 kb 目录，逐文件按 hash 幂等灌入；并清理"文件已不存在"的孤儿文档 */
     @Transactional
     public synchronized KbStatus rebuild() {
         KbStatus status = new KbStatus();
         status.files = new ArrayList<>();
         int seeded = 0;
         int skipped = 0;
+        int removed = 0;
         try {
             List<KbFile> files = scanKbFiles();
+            // 孤儿清理（放最前：不依赖 embedding，即使后续某篇灌入失败也已清理干净）
+            List<String> scanned = files.stream().map(f -> f.name).toList();
+            for (Document d : documentMapper.selectPage(1000, 0)) {
+                if (!scanned.contains(d.getName())) {
+                    documentMapper.deleteByDocId(d.getDocId());
+                    removed++;
+                    status.files.add(d.getName() + " (已清理:文件不存在)");
+                }
+            }
             for (KbFile f : files) {
                 String hash = sha256(f.content);
                 Document existing = documentMapper.selectByName(f.name);
@@ -83,9 +93,10 @@ public class KbSeedService implements ApplicationRunner {
             }
             status.seeded = seeded;
             status.skipped = skipped;
+            status.removed = removed;
             status.docCount = documentMapper.countAll();
             lastSeedAt.set(LocalDateTime.now());
-            log.info("知识库 seed 完成：灌入 {} 篇，跳过 {} 篇，共 {} 篇文档", seeded, skipped, status.docCount);
+            log.info("知识库 seed 完成：灌入 {} 篇，跳过 {} 篇，清理 {} 篇，共 {} 篇文档", seeded, skipped, removed, status.docCount);
         } catch (Exception e) {
             log.error("知识库重建失败：{}", e.getMessage(), e);
             status.error = e.getMessage();
@@ -159,6 +170,7 @@ public class KbSeedService implements ApplicationRunner {
     public static class KbStatus {
         public int seeded;
         public int skipped;
+        public int removed;
         public long docCount;
         public LocalDateTime lastSeedAt;
         public String error;

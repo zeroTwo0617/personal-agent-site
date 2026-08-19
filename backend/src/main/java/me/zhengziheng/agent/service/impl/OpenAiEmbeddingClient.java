@@ -65,8 +65,19 @@ public class OpenAiEmbeddingClient implements EmbeddingClient {
         if (resp == null || !resp.containsKey("data")) {
             throw new IllegalStateException("Embedding 接口返回异常: " + resp);
         }
-        List<Map<String, Object>> data = (List<Map<String, Object>>) resp.get("data");
-        List<Number> embedding = (List<Number>) data.get(0).get("embedding");
+        Object dataObj = resp.get("data");
+        if (!(dataObj instanceof List<?> data) || data.isEmpty()) {
+            throw new IllegalStateException("Embedding 接口返回空 data: " + resp);
+        }
+        Object first = data.get(0);
+        if (!(first instanceof Map<?, ?>)) {
+            throw new IllegalStateException("Embedding 接口 data[0] 结构异常: " + resp);
+        }
+        Object emb = ((Map<?, ?>) first).get("embedding");
+        if (!(emb instanceof List<?> list) || list.isEmpty()) {
+            throw new IllegalStateException("Embedding 接口返回缺少 embedding 字段: " + resp);
+        }
+        List<Number> embedding = (List<Number>) list;
 
         float[] vector = new float[embedding.size()];
         for (int i = 0; i < embedding.size(); i++) {

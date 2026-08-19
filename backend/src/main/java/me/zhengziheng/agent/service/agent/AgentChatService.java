@@ -332,7 +332,7 @@ public class AgentChatService {
             messages.add(new LlmMessage("user", "【补充检索结果】\n" + buildGlobalContext(collected, true)));
             return true;
         } catch (Exception e) {
-            log.warn("Agent 补充检索失败: {}", e.getMessage());
+            log.warn("Agent 补充检索失败: {}", e.toString());
             return false;
         }
     }
