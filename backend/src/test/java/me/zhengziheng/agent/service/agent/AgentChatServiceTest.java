@@ -15,6 +15,7 @@ import java.util.Map;
 import java.util.function.Consumer;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
@@ -279,5 +280,16 @@ class AgentChatServiceTest {
 
         assertTrue(r.getAnswer().contains("未检索到"));
         assertTrue(r.getSources().isEmpty());
+    }
+
+    @Test
+    void stripReActMarkers_removesMarkers_keepsAnswerContent() {
+        // 流式重生成可能带 THOUGHT/ANSWER 前缀:THOUGHT/ACTION 整行丢弃,ANSWER 去前缀保留内容
+        assertEquals("我是郑梓恒。\n[1][2]", AgentChatService.stripReActMarkers(
+                "THOUGHT: 信息足够\nANSWER: 我是郑梓恒。\n[1][2]"));
+        assertEquals("单行答案", AgentChatService.stripReActMarkers("ANSWER: 单行答案"));
+        assertNull(AgentChatService.stripReActMarkers("THOUGHT: x\nACTION: retrieve"));
+        assertFalse(AgentChatService.containsReActMarker("我是郑梓恒。"));
+        assertTrue(AgentChatService.containsReActMarker("ANSWER: 我是郑梓恒。"));
     }
 }

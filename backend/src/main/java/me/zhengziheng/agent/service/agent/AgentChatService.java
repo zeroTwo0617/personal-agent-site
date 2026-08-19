@@ -395,7 +395,7 @@ public class AgentChatService {
     }
 
     /** 答案中是否残留 ReAct 标记行（THOUGHT/ACTION/ANSWER 前缀）——混入即视为格式错误 */
-    private static boolean containsReActMarker(String text) {
+    static boolean containsReActMarker(String text) {
         if (text == null) {
             return false;
         }
@@ -408,15 +408,25 @@ public class AgentChatService {
         return false;
     }
 
-    /** 去掉泄漏进答案的 ReAct 标记行（如 "ACTION: retrieve"）；全为标记时返回 null */
-    private static String stripReActMarkers(String text) {
+    /** 去掉泄漏进答案的 ReAct 标记：
+     *  - THOUGHT/ACTION/ACTION_INPUT 行：内部动作，整行丢弃；
+     *  - ANSWER 行：只去掉 "ANSWER" 前缀，内容保留（模型可能把答案写成一整行 ANSWER: xxx）。
+     *  清洗后全空返回 null。 */
+    static String stripReActMarkers(String text) {
         if (text == null) {
             return null;
         }
         StringBuilder sb = new StringBuilder();
         for (String line : text.split("\n")) {
             String t = line.trim();
-            if (t.startsWith("THOUGHT") || t.startsWith("ACTION") || t.startsWith("ANSWER")) {
+            if (t.startsWith("THOUGHT") || t.startsWith("ACTION")) {
+                continue;
+            }
+            if (t.startsWith("ANSWER")) {
+                String rest = t.substring("ANSWER".length()).trim().replaceFirst("^[:：]\\s*", "").trim();
+                if (!rest.isEmpty()) {
+                    sb.append(rest).append("\n");
+                }
                 continue;
             }
             sb.append(line).append("\n");
