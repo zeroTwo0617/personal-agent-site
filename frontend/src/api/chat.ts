@@ -1,9 +1,14 @@
-import { post } from './request'
-import type { AgentStepEvent, ChatSubmitResponse, ChatTurn, ChunkSearchResult } from '@/types'
+import { get, post } from './request'
+import type { AgentStepEvent, ChatSubmitResponse, ChatTaskResult, ChatTurn, ChunkSearchResult } from '@/types'
 
 /** 提交问题：默认 agent 模式（深度思考）；history 最多 10 轮 */
 export function ask(question: string, topK = 5, history: ChatTurn[] = [], mode = 'agent') {
   return post<ChatSubmitResponse>('/chat', { question, topK, history, mode })
+}
+
+/** 轮询任务结果（SSE 断开时的兜底路径） */
+export function getChatResult(taskId: string) {
+  return get<ChatTaskResult>('/chat/result', { taskId })
 }
 
 /**

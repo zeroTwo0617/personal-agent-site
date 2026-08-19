@@ -76,7 +76,8 @@ public class ChatController {
     @GetMapping(value = "/chat/stream", produces = MediaType.TEXT_EVENT_STREAM_VALUE)
     @Operation(summary = "SSE 流式问答（M2）：按 taskId 订阅生成过程，逐字推送")
     public SseEmitter stream(@RequestParam String taskId) {
-        SseEmitter emitter = new SseEmitter(120000L);
+        // 600s：agent 模式含多步检索 + 思考(thinking) + 流式生成,可能超过原 120s
+        SseEmitter emitter = new SseEmitter(600000L);
         ChatTaskResult task = chatTaskService.get(taskId);
         if (task == null) {
             try {

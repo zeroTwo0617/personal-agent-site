@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { ref, nextTick, computed } from 'vue'
 import { useChatStore } from '@/store/chat'
-import { ask, openChatStream } from '@/api/chat'
+import { ask, getChatResult, openChatStream } from '@/api/chat'
 import { submitFeedback } from '@/api/feedback'
 import type { ChatMessage, ChatTurn } from '@/types'
 
@@ -75,7 +75,21 @@ async function submit(text?: string) {
         store.persist()
         scrollBottom()
       },
-      onError: (msg) => {
+      onError: async (msg) => {
+        // SSE 断开兜底：任务可能已完成，轮询一次结果；拿不到再标记失败
+        try {
+          const r = await getChatResult(taskId)
+          if (r.data && r.data.status === 'completed' && r.data.answer) {
+            ai.content = r.data.answer
+            ai.sources = r.data.sources
+            ai.qaId = r.data.qaId
+            ai.status = 'completed'
+            ai.thinkOpen = false
+            store.persist()
+            scrollBottom()
+            return
+          }
+        } catch { /* 轮询失败继续走失败分支 */ }
         ai.status = 'failed'
         ai.content = ai.content || msg
         store.persist()
