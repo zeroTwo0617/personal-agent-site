@@ -243,7 +243,7 @@ public class AgentChatService {
                 .append("【强制规则】回答任何问题前，第一步必须用 retrieve 工具检索知识库（输出 ACTION: retrieve），\n")
                 .append("拿到候选人的真实经历后再作答；严禁在未检索的情况下凭常识或记忆直接输出 ANSWER。\n")
                 .append("回答末尾用 [1][2] 这样的编号标注引用来源，编号对应【工具结果】里列出的片段编号。\n")
-                .append("回答要简洁、准确。\n\n")
+                .append("回答要清楚、有重点，别太啰嗦；语气像有朝气的应届生，自然一点。\n\n")
                 .append("可用工具（一次只调用一个）：\n");
         for (AgentTool t : toolRegistry.all()) {
             sb.append("- ").append(t.name()).append("：").append(t.description()).append("\n")

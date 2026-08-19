@@ -1,5 +1,5 @@
 import { get, post } from './request'
-import type { FeedbackStatsVO, KbStatus, QaLogItem } from '@/types'
+import type { EvalReport, FeedbackStatsVO, KbStatus, QaLogItem } from '@/types'
 
 export function login(username: string, password: string) {
   return post<{ token: string; username: string; expiresIn: number }>('/auth/login', { username, password })
@@ -19,4 +19,14 @@ export function getKbStatus() {
 
 export function rebuildKb() {
   return post<KbStatus>('/admin/kb/rebuild')
+}
+
+/** 跑评测集（GET 也行，后端同时支持 GET/POST）；返回本次报告 */
+export function runEval(topK = 6, mode = 'hybrid') {
+  return get<EvalReport>('/eval/run', { topK, mode })
+}
+
+/** 最近一次评测报告 */
+export function getEvalReport() {
+  return get<EvalReport>('/eval/report')
 }

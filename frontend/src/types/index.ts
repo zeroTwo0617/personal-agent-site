@@ -76,3 +76,28 @@ export interface KbStatus {
   files?: string[]
   error?: string
 }
+
+export interface EvalItemResult {
+  id: string
+  type: string
+  question: string
+  recallAtK?: number
+  docRecall?: number
+  refusalDetected?: boolean
+  faithfulness?: number
+  latencyMs: number
+  note?: string
+}
+
+export interface EvalReport {
+  runAt?: string
+  total: number
+  mode: string
+  faithfulnessSkipped: boolean
+  recallAtK?: number
+  docRecall?: number
+  faithfulness?: number
+  avgLatencyMs?: number
+  recallByType?: Record<string, number>
+  perItem: EvalItemResult[]
+}
