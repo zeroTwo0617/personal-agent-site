@@ -18,7 +18,7 @@ services:
     restart: unless-stopped
 
   backend:
-    image: ghcr.io/<owner>/personal-agent-backend:latest   # CI 构建推送
+    image: ghcr.io/garretqaq/personal-agent-backend:latest   # CI 构建推送(owner=GitHub 用户名,需与 CI 一致)
     container_name: pa-backend
     depends_on:
       pg:
@@ -50,7 +50,7 @@ services:
     restart: unless-stopped
 
   nginx:
-    image: ghcr.io/<owner>/personal-agent-frontend:latest   # CI 构建，dist 内置
+    image: ghcr.io/garretqaq/personal-agent-frontend:latest   # CI 构建，dist 内置
     container_name: pa-nginx
     ports:
       - "80:80"
