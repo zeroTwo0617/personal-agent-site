@@ -3,6 +3,7 @@ import { ref, nextTick, computed } from 'vue'
 import { useChatStore } from '@/store/chat'
 import { ask, getChatResult, openChatStream } from '@/api/chat'
 import { submitFeedback } from '@/api/feedback'
+import { renderMd } from '@/utils/markdown'
 import type { ChatMessage, ChatTurn } from '@/types'
 
 const store = useChatStore()
@@ -216,8 +217,9 @@ const canSend = computed(() => !sending.value && input.value.trim().length > 0 &
               <div v-if="m.thinkOpen" class="think-content">{{ m.thinking }}</div>
             </div>
 
-            <!-- 内容 -->
-            <div v-if="m.content" class="content" :class="m.role === 'ai' ? 'ai-content' : ''" style="white-space: pre-wrap">{{ m.content }}</div>
+            <!-- 内容：AI 渲染 Markdown(含 [N] 引用角标)；用户纯文本 -->
+            <div v-if="m.role === 'ai' && m.content" class="content ai-content" v-html="renderMd(m.content)"></div>
+            <div v-else-if="m.content" class="content" style="white-space: pre-wrap">{{ m.content }}</div>
             <span v-else-if="m.status === 'streaming'" class="cursor">▍</span>
 
             <!-- 引用来源 -->
@@ -491,6 +493,39 @@ const canSend = computed(() => !sending.value && input.value.trim().length > 0 &
 
 .cursor { animation: blink 1s steps(1) infinite; color: var(--accent); }
 @keyframes blink { 50% { opacity: 0; } }
+
+/* ===== AI 内容 Markdown 渲染样式(v-html 注入,需 :deep 穿透) ===== */
+.ai-content :deep(.cite) {
+  display: inline-block;
+  margin: 0 2px;
+  padding: 0 5px;
+  font-family: var(--font-code);
+  font-size: 11px;
+  line-height: 1.5;
+  color: var(--accent);
+  background: var(--accent-soft);
+  border-radius: 4px;
+  cursor: pointer;
+  vertical-align: baseline;
+}
+.ai-content :deep(p) { margin: 6px 0; }
+.ai-content :deep(strong) { color: var(--text); font-weight: 600; }
+.ai-content :deep(ul), .ai-content :deep(ol) { margin: 6px 0; padding-left: 1.4em; }
+.ai-content :deep(li) { margin: 2px 0; }
+.ai-content :deep(code) {
+  font-family: var(--font-code);
+  font-size: 13px;
+  background: var(--bg-soft);
+  border: 1px solid var(--border);
+  border-radius: 4px;
+  padding: 1px 5px;
+}
+.ai-content :deep(a) { color: var(--accent); text-decoration: underline; }
+.ai-content :deep(h1), .ai-content :deep(h2), .ai-content :deep(h3), .ai-content :deep(h4) { margin: 10px 0 6px; font-weight: 600; }
+.ai-content :deep(blockquote) { border-left: 3px solid var(--border-strong); padding-left: 10px; color: var(--text-dim); margin: 6px 0; }
+.ai-content :deep(table) { border-collapse: collapse; margin: 8px 0; font-size: 13px; }
+.ai-content :deep(th), .ai-content :deep(td) { border: 1px solid var(--border-strong); padding: 4px 10px; }
+.ai-content :deep(th) { background: var(--bg-soft); }
 
 .sources { margin-top: 10px; border-top: 1px solid var(--border); padding-top: 10px; }
 .src-title { font-size: 11px; color: var(--text-faint); letter-spacing: 0.08em; margin-bottom: 6px; }

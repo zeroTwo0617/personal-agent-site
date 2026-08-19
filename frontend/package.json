@@ -9,7 +9,10 @@
     "preview": "vite preview"
   },
   "dependencies": {
+    "@types/dompurify": "^3.0.5",
     "axios": "^1.7.2",
+    "dompurify": "^3.4.14",
+    "marked": "^18.0.10",
     "pinia": "^2.1.7",
     "vue": "^3.4.31",
     "vue-router": "^4.4.0"
