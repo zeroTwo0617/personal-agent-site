@@ -13,10 +13,12 @@ export default defineConfig({
       '/api': {
         target: 'http://localhost:8080',
         changeOrigin: true,
-        // SSE 流式：关缓冲、加长代理超时,避免长 agent 响应被代理掐断
+        // SSE 流式：只对 /chat/stream 设 Accept 头(不能全局设,否则普通 JSON 接口 406)
         configure: (proxy) => {
-          proxy.on('proxyReq', (proxyReq) => {
-            proxyReq.setHeader('Accept', 'text/event-stream')
+          proxy.on('proxyReq', (proxyReq, req) => {
+            if (req.url && req.url.includes('/chat/stream')) {
+              proxyReq.setHeader('Accept', 'text/event-stream')
+            }
           })
         },
         proxyTimeout: 600000,
