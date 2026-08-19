@@ -1,81 +1,104 @@
 /* ============================================================
-   设计令牌 —— 仿 DeepSeek Harness (dsh) 设计系统 · 浅色主题
-   dsh 浅色模式：白底 neutral-bluish-00 / 主色 deepseek-500
-   发丝黑边框 rgba(0,0,0,.08) / 交互悬浮 rgba(38,49,72,.06)
-   （深色版令牌保留在文末注释，想切回直接替换即可）
+   personal-agent-site · UI/UX Pro Max 设计系统
+   方向：工程档案 / annotated engineering dossier
+   - 冷调蓝图纸底 + 深青主色 + 朱红信号色
+   - 等宽字体承担“坐标/索引/技术标签”，正文保持易读
+   - 结构信息用 mono 标签（01 / 02 / 03）表达真实章节顺序
    ============================================================ */
 :root {
-  /* 背景体系 (dsw neutral-bluish 浅色阶) */
-  --bg: #ffffff;                       /* 页面底 (00) */
-  --bg-soft: #f5f6f7;                  /* 顶栏/输入条 (60) */
-  --card: #f9fafb;                     /* 卡片 (50) */
-  --card-hover: #f1f3f5;               /* 卡片悬浮 (75) */
-  --border: rgba(0, 0, 0, 0.08);       /* dsh 浅色发丝边框 */
-  --border-strong: rgba(0, 0, 0, 0.14);
-  --hover: rgba(38, 49, 72, 0.06);     /* dsh 浅色交互悬浮色 */
+  /* 背景 / 表面 */
+  --bg: #f3f5f7;
+  --bg-soft: #e9edf2;
+  --card: #ffffff;
+  --card-hover: #f7f9fb;
+  --surface-2: #f8fafc;
 
-  /* 文本 (neutral-bluish) */
-  --text: #0f1115;                     /* 主文本 (1000) */
-  --text-dim: #61666b;                 /* 次级 (700) */
-  --text-faint: #81858c;               /* 弱化 (600) */
+  /* 线条 / 悬浮 */
+  --border: rgba(23, 32, 43, 0.10);
+  --border-strong: rgba(23, 32, 43, 0.18);
+  --hover: rgba(11, 110, 107, 0.07);
 
-  /* 主色：DeepSeek 蓝（浅色模式用 500 阶，对比度更高） */
-  --accent: #4176e6;                   /* deepseek-500 */
-  --accent-strong: #4868b2;            /* deepseek-600 */
-  --accent-soft: #4868b2;              /* 链接/引用色（浅底需深蓝） */
-  --accent-hover: #679efe;             /* deepseek-400 */
+  /* 文本 */
+  --text: #17202b;
+  --text-dim: #57626e;
+  --text-faint: #8793a0;
 
-  /* 语义色（浅色阶） */
-  --ok: #22c55e;
-  --warn: #dd8629;                     /* amber-600 */
-  --err: #ef4444;
+  /* 主色：深青（工程感、可信、不撞大众蓝） */
+  --accent: #0b6e6b;
+  --accent-strong: #084c4a;
+  --accent-soft: #d8efec;
+  --accent-hover: #0f8985;
 
-  /* 字体 / 圆角 / 动效（与 dsh 一致） */
-  --font-code: "SF Mono", "JetBrains Mono", "Fira Code", Consolas, "Liberation Mono", Menlo, "PingFang SC", "Microsoft YaHei", monospace;
-  --radius-lg: 12px;                   /* dsh 卡片/终端统一 12px */
-  --radius-md: 8px;
-  --ease: cubic-bezier(0.4, 0, 0.2, 1);
-  --dur: 0.2s;
+  /* 信号色：朱红，仅用于 CTA / 状态点 / 高亮 */
+  --signal: #e8643c;
+  --signal-soft: #fdeae2;
+
+  /* 语义色 */
+  --ok: #0e9f6e;
+  --warn: #c47b18;
+  --err: #d64545;
+
+  /* 字体 / 圆角 / 动效 */
+  --font-display: "IBM Plex Sans", "Aptos", "Segoe UI", "PingFang SC", "Hiragino Sans GB", "Microsoft YaHei", sans-serif;
+  --font-body: -apple-system, BlinkMacSystemFont, "Segoe UI", "PingFang SC", "Hiragino Sans GB", "Microsoft YaHei", "Helvetica Neue", Helvetica, Arial, sans-serif;
+  --font-code: "JetBrains Mono", "SF Mono", "Fira Code", Consolas, "Liberation Mono", Menlo, "PingFang SC", "Microsoft YaHei", monospace;
+
+  --radius-lg: 14px;
+  --radius-md: 9px;
+  --radius-sm: 6px;
+  --ease: cubic-bezier(0.22, 1, 0.36, 1);
+  --dur: 0.24s;
+
+  --shadow-sm: 0 1px 2px rgba(23, 32, 43, 0.04), 0 1px 3px rgba(23, 32, 43, 0.06);
+  --shadow-md: 0 8px 24px rgba(23, 32, 43, 0.08), 0 2px 6px rgba(23, 32, 43, 0.05);
+  --shadow-lg: 0 20px 50px rgba(23, 32, 43, 0.12);
 }
 
 * { box-sizing: border-box; margin: 0; padding: 0; }
 
+html { scroll-behavior: smooth; }
 html, body, #app { height: 100%; }
 
 body {
-  background: var(--bg);
+  background:
+    radial-gradient(circle at 12% -10%, rgba(11, 110, 107, 0.06), transparent 34%),
+    radial-gradient(circle at 92% 4%, rgba(232, 100, 60, 0.05), transparent 28%),
+    var(--bg);
   color: var(--text);
-  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "PingFang SC", "Hiragino Sans GB", "Microsoft YaHei", "Helvetica Neue", Helvetica, Arial, sans-serif;
+  font-family: var(--font-body);
   -webkit-font-smoothing: antialiased;
-  line-height: 1.6;
+  text-rendering: optimizeLegibility;
+  line-height: 1.65;
 }
 
-::selection { background: rgba(65, 118, 230, 0.18); }
+::selection { background: rgba(11, 110, 107, 0.16); }
 
-/* dsh 细滚动条（浅色） */
-::-webkit-scrollbar { width: 8px; height: 8px; }
+::-webkit-scrollbar { width: 9px; height: 9px; }
 ::-webkit-scrollbar-track { background: transparent; }
-::-webkit-scrollbar-thumb { background: rgba(0, 0, 0, 0.16); border-radius: 4px; }
-::-webkit-scrollbar-thumb:hover { background: rgba(0, 0, 0, 0.26); }
+::-webkit-scrollbar-thumb { background: rgba(23, 32, 43, 0.18); border-radius: 5px; border: 2px solid transparent; background-clip: content-box; }
+::-webkit-scrollbar-thumb:hover { background: rgba(23, 32, 43, 0.30); border: 2px solid transparent; background-clip: content-box; }
 
-a { color: var(--accent-soft); text-decoration: none; transition: color var(--dur) var(--ease); }
-a:hover { color: var(--accent); text-decoration: none; }
+a { color: var(--accent); text-decoration: none; transition: color var(--dur) var(--ease); }
+a:hover { color: var(--accent-hover); }
 
 button {
   cursor: pointer;
   border: none;
   border-radius: var(--radius-md);
   font-size: 14px;
+  font-weight: 500;
   padding: 10px 18px;
   background: var(--accent);
   color: #fff;
-  transition: background var(--dur) var(--ease), border-color var(--dur) var(--ease), color var(--dur) var(--ease);
+  font-family: inherit;
+  transition: background var(--dur) var(--ease), border-color var(--dur) var(--ease), color var(--dur) var(--ease), box-shadow var(--dur) var(--ease), transform var(--dur) var(--ease);
 }
-button:hover { background: var(--accent-hover); }
-button:disabled { background: var(--card-hover); color: var(--text-faint); cursor: not-allowed; }
+button:hover { background: var(--accent-hover); box-shadow: 0 4px 12px rgba(11, 110, 107, 0.18); }
+button:active { transform: translateY(0); }
+button:disabled { background: var(--bg-soft); color: var(--text-faint); cursor: not-allowed; box-shadow: none; }
 
 input, textarea {
-  background: var(--bg-soft);
+  background: var(--card);
   border: 1px solid var(--border-strong);
   border-radius: var(--radius-md);
   color: var(--text);
@@ -87,19 +110,37 @@ input, textarea {
 }
 input:focus, textarea:focus {
   border-color: var(--accent);
-  box-shadow: 0 0 0 3px rgba(65, 118, 230, 0.15);
+  box-shadow: 0 0 0 3px rgba(11, 110, 107, 0.14);
 }
 
-.container { max-width: 1080px; margin: 0 auto; padding: 0 20px; }
+.container { max-width: 1120px; margin: 0 auto; padding: 0 24px; }
 
-/* ============================================================
-   深色版令牌（dsh 原版）—— 切回深色时用下面这段替换 :root 里的值
-   --bg: #151517;  --bg-soft: #1b1b1c;  --card: #2c2c2e;  --card-hover: #353638;
-   --border: rgba(255,255,255,.06);  --border-strong: rgba(255,255,255,.12);
-   --hover: rgba(255,255,255,.08);
-   --text: #f9fafb;  --text-dim: #81858c;  --text-faint: #61666b;
-   --accent: #5686fe;  --accent-strong: #4176e6;  --accent-soft: #b7c8fe;  --accent-hover: #679efe;
-   --ok: #22c55e;  --warn: #f59e0b;  --err: #ef4444;
-   另：::selection → rgba(86,134,254,.4)；滚动条 thumb → rgba(255,255,255,.14)/.24；
-       focus ring → rgba(86,134,254,.15)
-   ============================================================ */
+/* 通用小部件 */
+.mono { font-family: var(--font-code); }
+.eyebrow {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  font-family: var(--font-code);
+  font-size: 12px;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--accent);
+  font-weight: 600;
+}
+.eyebrow::before {
+  content: "";
+  width: 20px;
+  height: 1px;
+  background: var(--accent);
+  opacity: 0.6;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+  html { scroll-behavior: auto; }
+}

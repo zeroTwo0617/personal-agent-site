@@ -16,7 +16,7 @@ export const profile = {
   ],
   projects: [
     { title: 'RAG 知识库问答系统', desc: 'Vue3 + Spring Boot + PGVector，混合检索 + Agent 化问答 + 评测闭环', tech: ['Java', 'Spring Boot', 'PGVector', 'Vue3'], url: '' },
-    { title: 'FitLog 健身小程序后端', desc: '图片托管 API + AI Agent(chat/search/insight)', tech: ['Java', 'Spring Boot', 'MySQL', 'RAG'], url: '' }
+    { title: 'FitLog 训练记录小程序', desc: '微信小程序原生 + CloudBase，训练记录 + 数据口径统一 + 训练 Agent 云函数', tech: ['微信小程序', 'CloudBase', '云函数', 'LLM'], url: '' }
   ],
   experience: [
     // 【待填】实习/工作经历

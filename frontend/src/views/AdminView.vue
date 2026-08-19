@@ -94,22 +94,32 @@ function itemFlag(it: any): string {
 </script>
 
 <template>
-  <div class="admin container">
+  <div class="admin">
     <template v-if="!admin.token">
-      <div class="login">
-        <h2>站长登录</h2>
-        <input v-model="username" placeholder="用户名" />
-        <input v-model="password" type="password" placeholder="密码" @keydown.enter="doLogin" />
-        <button :disabled="loggingIn" @click="doLogin">{{ loggingIn ? '登录中…' : '登录' }}</button>
-        <p v-if="loginErr" class="err">{{ loginErr }}</p>
-        <router-link to="/">← 返回主页</router-link>
+      <div class="login-wrap">
+        <div class="login-card">
+          <div class="login-brand mono">ADMIN / CONSOLE</div>
+          <h2>站长登录</h2>
+          <p class="login-sub">仅用于查看访客数据与知识库状态</p>
+          <input v-model="username" placeholder="用户名" autocomplete="username" />
+          <input v-model="password" type="password" placeholder="密码" autocomplete="current-password" @keydown.enter="doLogin" />
+          <button :disabled="loggingIn" @click="doLogin">{{ loggingIn ? '登录中…' : '登录' }}</button>
+          <p v-if="loginErr" class="err">{{ loginErr }}</p>
+          <router-link to="/" class="back">← 返回主页</router-link>
+        </div>
       </div>
     </template>
 
     <template v-else>
       <header class="bar">
-        <router-link to="/">← 主页</router-link>
-        <button class="ghost" @click="admin.logout()">退出</button>
+        <div class="bar-left">
+          <span class="brand-mark mono">ADMIN</span>
+          <span class="bar-title">站长控制台</span>
+        </div>
+        <div class="bar-actions">
+          <router-link to="/" class="ghost-link">← 主页</router-link>
+          <button class="ghost" @click="admin.logout()">退出</button>
+        </div>
       </header>
 
       <nav class="tabs">
@@ -118,39 +128,60 @@ function itemFlag(it: any): string {
       </nav>
 
       <template v-if="tab === 'data'">
-        <section class="panel">
-          <h2>反馈统计</h2>
-          <div v-if="stats" class="stats">
-            <div>总反馈：{{ stats.total }}</div>
-            <div>好评：{{ stats.positive }}</div>
-            <div>差评：{{ stats.negative }}</div>
-            <div>好评率：{{ stats.positiveRate }}%</div>
-          </div>
-          <div v-if="stats && stats.recentNegative.length" class="neg">
-            <h3>最近差评</h3>
-            <div v-for="(n, i) in stats.recentNegative" :key="i" class="neg-item">
-              <div class="q">{{ n.question }}</div>
-              <div class="c">{{ n.comment || '（无评论）' }}</div>
+        <div class="panel-grid">
+          <section class="panel">
+            <h2>反馈统计</h2>
+            <div v-if="stats" class="stats">
+              <div class="stat-card">
+                <span class="stat-label mono">TOTAL</span>
+                <span class="stat-value">{{ stats.total }}</span>
+              </div>
+              <div class="stat-card">
+                <span class="stat-label mono">GOOD</span>
+                <span class="stat-value ok">{{ stats.positive }}</span>
+              </div>
+              <div class="stat-card">
+                <span class="stat-label mono">BAD</span>
+                <span class="stat-value err">{{ stats.negative }}</span>
+              </div>
+              <div class="stat-card">
+                <span class="stat-label mono">RATE</span>
+                <span class="stat-value">{{ stats.positiveRate }}%</span>
+              </div>
             </div>
-          </div>
-        </section>
+            <div v-if="stats && stats.recentNegative.length" class="neg">
+              <h3>最近差评</h3>
+              <div v-for="(n, i) in stats.recentNegative" :key="i" class="neg-item">
+                <div class="q">{{ n.question }}</div>
+                <div class="c">{{ n.comment || '（无评论）' }}</div>
+              </div>
+            </div>
+          </section>
+
+          <section class="panel">
+            <h2>知识库</h2>
+            <div v-if="kb" class="kb-row">
+              <span class="kb-label mono">DOCS</span>
+              <span class="kb-value">{{ kb.docCount }}</span>
+              <span class="kb-time mono">{{ fmt(kb.lastSeedAt) }}</span>
+            </div>
+            <button @click="doRebuild">重建索引</button>
+            <span v-if="kbMsg" class="kb-msg">{{ kbMsg }}</span>
+          </section>
+        </div>
 
         <section class="panel">
           <h2>访客提问记录（共 {{ qaTotal }} 条）</h2>
           <div class="qa-list">
             <div v-for="q in qa" :key="q.id" class="qa-item">
+              <div class="qa-head">
+                <span class="qa-id mono">#{{ q.id }}</span>
+                <span class="qa-time mono">{{ fmt(q.createdAt) }}</span>
+              </div>
               <div class="q">Q: {{ q.question }}</div>
               <div class="a">A: {{ q.answer.slice(0, 120) }}{{ q.answer.length > 120 ? '…' : '' }}</div>
-              <div class="t">{{ fmt(q.createdAt) }}</div>
             </div>
           </div>
-        </section>
-
-        <section class="panel">
-          <h2>知识库</h2>
-          <div v-if="kb">文档数：{{ kb.docCount }} · 上次 seed：{{ fmt(kb.lastSeedAt) }}</div>
-          <button @click="doRebuild">重建索引</button>
-          <span v-if="kbMsg" class="kb-msg">{{ kbMsg }}</span>
         </section>
       </template>
 
@@ -200,41 +231,126 @@ function itemFlag(it: any): string {
 </template>
 
 <style scoped>
-.admin { padding: 24px 20px; }
-.login { max-width: 320px; margin: 80px auto; display: flex; flex-direction: column; gap: 12px; text-align: center; }
+.admin { min-height: 100%; padding: 24px; max-width: 1200px; margin: 0 auto; }
+
+/* Login */
+.login-wrap { display: flex; justify-content: center; padding-top: 9vh; }
+.login-card {
+  width: 360px;
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-lg);
+  padding: 32px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+.login-brand { font-size: 11px; color: var(--text-faint); letter-spacing: 0.12em; }
+.login-card h2 { font-family: var(--font-display); font-size: 26px; letter-spacing: -0.02em; }
+.login-sub { font-size: 13px; color: var(--text-dim); margin-bottom: 8px; }
 .err { color: var(--err); font-size: 13px; }
-.bar { display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px; }
-.ghost { background: transparent; border: 1px solid var(--border-strong); color: var(--text-dim); }
-.ghost:hover { background: var(--hover); color: var(--text); }
+.back { text-align: center; font-size: 13px; color: var(--text-dim); }
+
+/* Bar */
+.bar {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 20px;
+  padding-bottom: 16px;
+  border-bottom: 1px solid var(--border);
+}
+.bar-left { display: flex; align-items: center; gap: 10px; }
+.brand-mark {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--accent);
+  color: #fff;
+  border-radius: 8px;
+  padding: 5px 8px;
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+}
+.bar-title { font-size: 18px; font-weight: 700; }
+.bar-actions { display: flex; align-items: center; gap: 12px; }
+.ghost-link { font-size: 14px; color: var(--text-dim); }
+.ghost { background: transparent; border: 1px solid var(--border-strong); color: var(--text-dim); box-shadow: none; }
+.ghost:hover { background: var(--hover); color: var(--text); border-color: var(--accent); box-shadow: none; }
+
+/* Tabs */
 .tabs { display: flex; gap: 8px; margin-bottom: 20px; }
-.tab { background: var(--card); border: 1px solid var(--border); color: var(--text-dim); padding: 8px 20px; }
-.tab.active { background: var(--accent); color: #fff; border-color: var(--accent); }
-.panel { background: var(--card); border: 1px solid var(--border); border-radius: var(--radius-lg); padding: 20px; margin-bottom: 20px; }
-.panel h2 { margin-bottom: 12px; font-size: 18px; }
-.stats { display: flex; gap: 24px; color: var(--text-dim); }
-.neg-item { border-top: 1px solid var(--border); padding: 8px 0; }
+.tab { background: var(--card); border: 1px solid var(--border); color: var(--text-dim); padding: 9px 22px; box-shadow: none; }
+.tab.active { background: var(--accent); color: #fff; border-color: var(--accent); box-shadow: 0 4px 12px rgba(11,110,107,.18); }
+
+/* Panels */
+.panel {
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+  padding: 22px;
+  margin-bottom: 20px;
+  box-shadow: var(--shadow-sm);
+}
+.panel h2 { margin-bottom: 14px; font-size: 18px; font-family: var(--font-display); letter-spacing: -0.01em; }
+.panel h3 { margin-bottom: 8px; font-size: 14px; color: var(--text-dim); }
+.panel-grid { display: grid; grid-template-columns: 1.4fr 1fr; gap: 20px; }
+.stats { display: grid; grid-template-columns: repeat(auto-fit, minmax(110px, 1fr)); gap: 10px; }
+.stat-card {
+  background: var(--surface-2);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-md);
+  padding: 14px;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+.stat-label { font-size: 10px; color: var(--text-faint); letter-spacing: 0.08em; }
+.stat-value { font-size: 24px; font-weight: 700; }
+.stat-value.ok { color: var(--ok); }
+.stat-value.err { color: var(--err); }
+.neg { margin-top: 16px; border-top: 1px solid var(--border); padding-top: 12px; }
+.neg-item { padding: 8px 0; border-top: 1px solid var(--border); }
 .neg-item .q { font-size: 13px; }
 .neg-item .c { font-size: 12px; color: var(--err); }
-.qa-list { max-height: 400px; overflow-y: auto; }
+.kb-row { display: flex; align-items: baseline; gap: 12px; margin-bottom: 16px; flex-wrap: wrap; }
+.kb-label { font-size: 11px; color: var(--text-faint); }
+.kb-value { font-size: 26px; font-weight: 700; }
+.kb-time { font-size: 12px; color: var(--text-faint); }
+.kb-msg { margin-left: 10px; font-size: 13px; color: var(--accent); }
+
+/* QA */
+.qa-list { max-height: 420px; overflow-y: auto; }
 .qa-item { border-top: 1px solid var(--border); padding: 10px 0; }
-.qa-item .q { font-size: 13px; }
+.qa-item:first-child { border-top: none; }
+.qa-head { display: flex; justify-content: space-between; margin-bottom: 4px; }
+.qa-id { font-size: 11px; color: var(--text-faint); }
+.qa-time { font-size: 11px; color: var(--text-faint); }
+.qa-item .q { font-size: 13px; font-weight: 600; }
 .qa-item .a { font-size: 12px; color: var(--text-dim); }
-.qa-item .t { font-size: 11px; color: var(--text-dim); }
-.kb-msg { margin-left: 10px; font-size: 13px; color: var(--accent-soft); }
+
+/* Eval */
 .eval-controls { display: flex; gap: 16px; align-items: center; margin-bottom: 16px; flex-wrap: wrap; }
 .eval-controls label { font-size: 13px; color: var(--text-dim); display: flex; align-items: center; gap: 6px; }
-.eval-controls select { background: var(--bg-soft); border: 1px solid var(--border); color: var(--text); border-radius: 6px; padding: 4px 8px; }
+.eval-controls select { background: var(--surface-2); border: 1px solid var(--border); color: var(--text); border-radius: var(--radius-sm); padding: 4px 8px; }
 .eval-cards { display: flex; gap: 12px; flex-wrap: wrap; margin-bottom: 12px; }
-.eval-card { background: var(--bg-soft); border: 1px solid var(--border); border-radius: var(--radius-lg); padding: 12px 18px; min-width: 120px; }
+.eval-card { background: var(--surface-2); border: 1px solid var(--border); border-radius: var(--radius-lg); padding: 12px 18px; min-width: 120px; }
 .eval-card .k { font-size: 12px; color: var(--text-dim); }
-.eval-card .v { font-size: 20px; font-weight: 600; color: var(--text); }
+.eval-card .v { font-size: 20px; font-weight: 700; color: var(--text); }
 .by-type { margin-bottom: 12px; font-size: 13px; color: var(--text-dim); }
-.type-tag { display: inline-block; background: var(--bg-soft); border: 1px solid var(--border); border-radius: 20px; padding: 2px 10px; margin-left: 8px; }
+.type-tag { display: inline-block; background: var(--surface-2); border: 1px solid var(--border); border-radius: 20px; padding: 2px 10px; margin-left: 8px; font-size: 12px; }
 .note { font-size: 12px; color: var(--warn); margin-bottom: 12px; }
 .eval-table { width: 100%; border-collapse: collapse; font-size: 12px; }
-.eval-table th, .eval-table td { border: 1px solid var(--border); padding: 6px 8px; text-align: left; }
-.eval-table th { background: var(--bg-soft); color: var(--text-dim); }
+.eval-table th, .eval-table td { border: 1px solid var(--border); padding: 7px 9px; text-align: left; }
+.eval-table th { background: var(--bg-soft); color: var(--text-dim); font-family: var(--font-code); font-size: 11px; }
 .eval-table td.q { max-width: 320px; }
-.eval-table tr.bad { background: rgba(239, 93, 108, 0.08); }
+.eval-table tr.bad { background: rgba(214, 69, 69, 0.06); }
 .eval-table .flag { color: var(--err); font-size: 11px; }
+
+@media (max-width: 760px) {
+  .panel-grid { grid-template-columns: 1fr; }
+  .admin { padding: 16px; }
+}
 </style>
