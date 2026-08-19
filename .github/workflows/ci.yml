@@ -8,9 +8,9 @@ on:
 
 env:
   REGISTRY: ghcr.io
-  # lower(): GitHub 用户名可能含大写,而镜像仓库名必须全小写
-  BACKEND_IMAGE: ghcr.io/${{ lower(github.repository_owner) }}/personal-agent-backend
-  FRONTEND_IMAGE: ghcr.io/${{ lower(github.repository_owner) }}/personal-agent-frontend
+  # 镜像仓库名必须全小写(GitHub 用户名 zeroTwo0617 含大写 → 硬编码小写 zerotwo0617)
+  BACKEND_IMAGE: ghcr.io/zerotwo0617/personal-agent-backend
+  FRONTEND_IMAGE: ghcr.io/zerotwo0617/personal-agent-frontend
 
 jobs:
   backend:
