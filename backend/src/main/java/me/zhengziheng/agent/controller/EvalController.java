@@ -1,5 +1,6 @@
 package me.zhengziheng.agent.controller;
 
+import me.zhengziheng.agent.common.Result;
 import me.zhengziheng.agent.dto.response.EvalReport;
 import me.zhengziheng.agent.service.EvalService;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -36,14 +37,14 @@ public class EvalController {
      * curl  ：curl -X POST "http://localhost:8080/api/eval/run?mode=vector&topK=6"
      */
     @RequestMapping(value = "/run", method = {RequestMethod.POST, RequestMethod.GET})
-    public EvalReport run(@RequestParam(defaultValue = "6") int topK,
-                          @RequestParam(defaultValue = "hybrid") String mode) {
-        return evalService.run(topK, mode);
+    public Result<EvalReport> run(@RequestParam(defaultValue = "6") int topK,
+                                  @RequestParam(defaultValue = "hybrid") String mode) {
+        return Result.success(evalService.run(topK, mode));
     }
 
     @GetMapping("/report")
-    public EvalReport report() {
-        return evalService.getLastReport();
+    public Result<EvalReport> report() {
+        return Result.success(evalService.getLastReport());
     }
 
     /**
