@@ -22,7 +22,6 @@ export const profile = {
     // 【待填】实习/工作经历
   ],
   socials: [
-    { name: 'GitHub', url: 'https://github.com/Garretqaq' },
-    { name: '博客', url: 'https://www.hanhandato.top' }
+    { name: 'GitHub', url: 'https://github.com/Garretqaq' }
   ]
 }
