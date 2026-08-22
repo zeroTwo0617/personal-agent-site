@@ -1,40 +1,40 @@
 /* ============================================================
    personal-agent-site · UI/UX Pro Max 设计系统
    方向：工程档案 / annotated engineering dossier
-   - 冷调蓝图纸底 + 深青主色 + 朱红信号色
+   - 暖白纸张底 + 柔和蜜桃主色 + 深色文字
    - 等宽字体承担“坐标/索引/技术标签”，正文保持易读
    - 结构信息用 mono 标签（01 / 02 / 03）表达真实章节顺序
    ============================================================ */
 :root {
   /* 背景 / 表面 */
-  --bg: #f3f5f7;
-  --bg-soft: #e9edf2;
+  --bg: #ffffff;
+  --bg-soft: #f4f4f5;
   --card: #ffffff;
-  --card-hover: #f7f9fb;
-  --surface-2: #f8fafc;
+  --card-hover: #fff8f6;
+  --surface-2: #fafafa;
 
   /* 线条 / 悬浮 */
-  --border: rgba(23, 32, 43, 0.10);
-  --border-strong: rgba(23, 32, 43, 0.18);
-  --hover: rgba(11, 110, 107, 0.07);
+  --border: rgba(24, 24, 27, 0.10);
+  --border-strong: rgba(24, 24, 27, 0.18);
+  --hover: rgba(243, 180, 165, 0.18);
 
   /* 文本 */
-  --text: #17202b;
-  --text-dim: #57626e;
-  --text-faint: #8793a0;
+  --text: #18181b;
+  --text-dim: #71717a;
+  --text-faint: #a1a1aa;
 
-  /* 主色：深青（工程感、可信、不撞大众蓝） */
-  --accent: #0b6e6b;
-  --accent-strong: #084c4a;
-  --accent-soft: #d8efec;
-  --accent-hover: #0f8985;
+  /* 主色：参考站的柔和蜜桃色 */
+  --accent: #d98a73;
+  --accent-strong: #a95742;
+  --accent-soft: #f8dfd7;
+  --accent-hover: #c87861;
 
-  /* 信号色：朱红，仅用于 CTA / 状态点 / 高亮 */
-  --signal: #e8643c;
-  --signal-soft: #fdeae2;
+  /* 信号色：更浅的蜜桃色，用于渐变和高亮 */
+  --signal: #f3b4a5;
+  --signal-soft: #fff0eb;
 
   /* 语义色 */
-  --ok: #0e9f6e;
+  --ok: #3d9b72;
   --warn: #c47b18;
   --err: #d64545;
 
@@ -49,9 +49,9 @@
   --ease: cubic-bezier(0.22, 1, 0.36, 1);
   --dur: 0.24s;
 
-  --shadow-sm: 0 1px 2px rgba(23, 32, 43, 0.04), 0 1px 3px rgba(23, 32, 43, 0.06);
-  --shadow-md: 0 8px 24px rgba(23, 32, 43, 0.08), 0 2px 6px rgba(23, 32, 43, 0.05);
-  --shadow-lg: 0 20px 50px rgba(23, 32, 43, 0.12);
+  --shadow-sm: 0 1px 2px rgba(24, 24, 27, 0.04), 0 1px 3px rgba(24, 24, 27, 0.06);
+  --shadow-md: 0 8px 24px rgba(24, 24, 27, 0.08), 0 2px 6px rgba(24, 24, 27, 0.05);
+  --shadow-lg: 0 20px 50px rgba(24, 24, 27, 0.12);
 }
 
 * { box-sizing: border-box; margin: 0; padding: 0; }
@@ -60,10 +60,7 @@ html { scroll-behavior: smooth; }
 html, body, #app { height: 100%; }
 
 body {
-  background:
-    radial-gradient(circle at 12% -10%, rgba(11, 110, 107, 0.06), transparent 34%),
-    radial-gradient(circle at 92% 4%, rgba(232, 100, 60, 0.05), transparent 28%),
-    var(--bg);
+  background: var(--bg);
   color: var(--text);
   font-family: var(--font-body);
   -webkit-font-smoothing: antialiased;
@@ -71,12 +68,12 @@ body {
   line-height: 1.65;
 }
 
-::selection { background: rgba(11, 110, 107, 0.16); }
+::selection { background: rgba(243, 180, 165, 0.32); }
 
 ::-webkit-scrollbar { width: 9px; height: 9px; }
 ::-webkit-scrollbar-track { background: transparent; }
-::-webkit-scrollbar-thumb { background: rgba(23, 32, 43, 0.18); border-radius: 5px; border: 2px solid transparent; background-clip: content-box; }
-::-webkit-scrollbar-thumb:hover { background: rgba(23, 32, 43, 0.30); border: 2px solid transparent; background-clip: content-box; }
+::-webkit-scrollbar-thumb { background: rgba(24, 24, 27, 0.18); border-radius: 5px; border: 2px solid transparent; background-clip: content-box; }
+::-webkit-scrollbar-thumb:hover { background: rgba(24, 24, 27, 0.30); border: 2px solid transparent; background-clip: content-box; }
 
 a { color: var(--accent); text-decoration: none; transition: color var(--dur) var(--ease); }
 a:hover { color: var(--accent-hover); }
@@ -93,7 +90,7 @@ button {
   font-family: inherit;
   transition: background var(--dur) var(--ease), border-color var(--dur) var(--ease), color var(--dur) var(--ease), box-shadow var(--dur) var(--ease), transform var(--dur) var(--ease);
 }
-button:hover { background: var(--accent-hover); box-shadow: 0 4px 12px rgba(11, 110, 107, 0.18); }
+button:hover { background: var(--accent-hover); box-shadow: 0 4px 12px rgba(217, 138, 115, 0.22); }
 button:active { transform: translateY(0); }
 button:disabled { background: var(--bg-soft); color: var(--text-faint); cursor: not-allowed; box-shadow: none; }
 
@@ -110,7 +107,7 @@ input, textarea {
 }
 input:focus, textarea:focus {
   border-color: var(--accent);
-  box-shadow: 0 0 0 3px rgba(11, 110, 107, 0.14);
+  box-shadow: 0 0 0 3px rgba(217, 138, 115, 0.18);
 }
 
 .container { max-width: 1120px; margin: 0 auto; padding: 0 24px; }

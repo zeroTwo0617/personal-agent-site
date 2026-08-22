@@ -1,5 +1,6 @@
 <script setup lang="ts">
-import { ref, nextTick, computed } from 'vue'
+import { ref, nextTick, computed, onMounted, watch } from 'vue'
+import { useRoute } from 'vue-router'
 import { useChatStore } from '@/store/chat'
 import { ask, getChatResult, openChatStream } from '@/api/chat'
 import { submitFeedback } from '@/api/feedback'
@@ -7,6 +8,7 @@ import { renderMd } from '@/utils/markdown'
 import type { ChatMessage, ChatTurn } from '@/types'
 
 const store = useChatStore()
+const route = useRoute()
 const input = ref('')
 const deepThink = ref(true)
 const sending = ref(false)
@@ -18,6 +20,15 @@ const suggestions = [
   '你在项目里遇到过最大的困难是什么',
   '你的技术栈有哪些'
 ]
+
+function applyPromptFromRoute(value = route.query.prompt) {
+  if (typeof value === 'string' && !input.value.trim()) {
+    input.value = value.slice(0, 500)
+  }
+}
+
+onMounted(() => applyPromptFromRoute())
+watch(() => route.query.prompt, (value) => applyPromptFromRoute(value))
 
 function scrollBottom() {
   nextTick(() => { if (listEl.value) listEl.value.scrollTop = listEl.value.scrollHeight })
@@ -142,7 +153,7 @@ const canSend = computed(() => !sending.value && input.value.trim().length > 0 &
 
       <div class="brand">
         <span class="brand-mark mono">AI</span>
-        <span class="brand-name">郑梓恒 · 分身</span>
+        <span class="brand-name">邱俊景 · 分身</span>
       </div>
 
       <button class="new-chat-btn" @click="newChat">
@@ -161,25 +172,15 @@ const canSend = computed(() => !sending.value && input.value.trim().length > 0 &
         </div>
       </nav>
 
-      <div class="sidebar-foot mono">
-        <span class="status-dot" /> RAG Online
-      </div>
     </aside>
 
     <!-- 主区 -->
     <section class="main">
-      <header class="topbar">
-        <div class="topbar-inner">
-          <span class="id-badge"><i class="pulse-dot" /> AI 分身 · 基于本人真实经历作答</span>
-          <span class="topbar-mode mono">{{ deepThink ? 'agent / deep' : 'normal / fast' }}</span>
-        </div>
-      </header>
-
       <div class="list" ref="listEl">
         <div v-if="store.messages.length === 0" class="empty">
           <div class="empty-card">
             <span class="eyebrow">Interactive Console</span>
-            <h2>你好，我是郑梓恒的 AI 分身 👋</h2>
+            <h2>你好，我是邱俊景的 AI 分身 👋</h2>
             <p>关于我的项目、技术栈、经历，任何问题都可以问我。</p>
             <div class="suggests">
               <button v-for="s in suggestions" :key="s" class="chip" @click="submit(s)">{{ s }}</button>
@@ -192,7 +193,7 @@ const canSend = computed(() => !sending.value && input.value.trim().length > 0 &
             <!-- AI 头部 -->
             <div v-if="m.role === 'ai'" class="ai-head">
               <span class="ai-avatar mono">AI</span>
-              <span class="ai-name">郑梓恒 · 分身</span>
+              <span class="ai-name">邱俊景 · 分身</span>
               <span v-if="m.status === 'streaming'" class="ai-status mono">生成中…</span>
               <span v-else-if="m.status === 'failed'" class="ai-status mono error">失败</span>
               <span v-else-if="m.sources?.length" class="ai-status mono">引用 {{ m.sources.length }}</span>
@@ -355,33 +356,8 @@ const canSend = computed(() => !sending.value && input.value.trim().length > 0 &
 }
 .ws-item.current { background: var(--card); color: var(--text); box-shadow: var(--shadow-sm); }
 .ws-dot { width: 7px; height: 7px; border-radius: 50%; background: var(--accent); }
-.sidebar-foot {
-  margin-top: auto;
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  padding: 12px 8px 4px;
-  font-size: 11px;
-  color: var(--text-dim);
-}
-.status-dot { width: 7px; height: 7px; border-radius: 50%; background: var(--ok); box-shadow: 0 0 0 3px rgba(14,159,110,.14); }
-
 /* ============ Main ============ */
 .main { flex: 1; display: flex; flex-direction: column; min-width: 0; background: var(--bg); }
-.topbar {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  padding: 12px 24px;
-  border-bottom: 1px solid var(--border);
-  background: rgba(255,255,255,0.65);
-  backdrop-filter: blur(10px);
-}
-.topbar-inner { display: flex; align-items: center; gap: 12px; width: 100%; }
-.id-badge { display: inline-flex; align-items: center; gap: 8px; font-size: 13px; color: var(--text-dim); }
-.pulse-dot { width: 8px; height: 8px; border-radius: 50%; background: var(--ok); box-shadow: 0 0 0 0 rgba(14,159,110,.4); animation: pulse 2s infinite; }
-@keyframes pulse { 70% { box-shadow: 0 0 0 7px rgba(14,159,110,0); } 100% { box-shadow: 0 0 0 0 rgba(14,159,110,0); } }
-.topbar-mode { font-size: 11px; color: var(--text-faint); margin-left: auto; }
 
 .list { flex: 1; overflow-y: auto; padding: 28px 32px; scroll-behavior: smooth; }
 .empty { display: flex; justify-content: center; padding-top: 9vh; }
@@ -419,7 +395,7 @@ const canSend = computed(() => !sending.value && input.value.trim().length > 0 &
   color: #fff;
   border-radius: var(--radius-lg) var(--radius-lg) 4px var(--radius-lg);
   padding: 12px 16px;
-  box-shadow: 0 6px 16px rgba(11,110,107,.16);
+  box-shadow: 0 6px 16px rgba(217,138,115,.18);
 }
 .msg.ai .bubble { max-width: 100%; width: 100%; }
 
@@ -556,7 +532,7 @@ const canSend = computed(() => !sending.value && input.value.trim().length > 0 &
   transition: border-color var(--dur) var(--ease), box-shadow var(--dur) var(--ease);
   overflow: hidden;
 }
-.composer:focus-within { border-color: var(--accent); box-shadow: 0 0 0 3px rgba(11,110,107,.12), var(--shadow-md); }
+.composer:focus-within { border-color: var(--accent); box-shadow: 0 0 0 3px rgba(217,138,115,.16), var(--shadow-md); }
 .composer-row { padding: 14px 16px 4px; }
 .composer-row textarea {
   width: 100%;
@@ -595,7 +571,7 @@ const canSend = computed(() => !sending.value && input.value.trim().length > 0 &
   box-shadow: none;
 }
 .mode-btn:hover:not(.active) { background: var(--hover); color: var(--text); box-shadow: none; }
-.mode-btn.active { background: var(--accent); border-color: var(--accent); color: #fff; box-shadow: 0 4px 10px rgba(11,110,107,.18); }
+.mode-btn.active { background: var(--accent); border-color: var(--accent); color: #fff; box-shadow: 0 4px 10px rgba(217,138,115,.20); }
 .mode-dot { width: 6px; height: 6px; border-radius: 50%; background: currentColor; }
 .send-btn {
   width: 34px;
@@ -609,11 +585,11 @@ const canSend = computed(() => !sending.value && input.value.trim().length > 0 &
   display: flex;
   align-items: center;
   justify-content: center;
-  box-shadow: 0 4px 10px rgba(11,110,107,.22);
+  box-shadow: 0 4px 10px rgba(217,138,115,.24);
   -webkit-appearance: none;
   appearance: none;
 }
-.send-btn:hover:not(:disabled) { background: var(--accent-hover); transform: translateY(-1px); box-shadow: 0 6px 14px rgba(11,110,107,.26); }
+.send-btn:hover:not(:disabled) { background: var(--accent-hover); transform: translateY(-1px); box-shadow: 0 6px 14px rgba(217,138,115,.28); }
 .send-btn:disabled { background: var(--bg-soft); color: var(--text-faint); box-shadow: none; cursor: not-allowed; }
 
 .privacy { text-align: center; font-size: 11px; color: var(--text-faint); padding: 8px 0 2px; }
@@ -621,7 +597,7 @@ const canSend = computed(() => !sending.value && input.value.trim().length > 0 &
 /* ============ Responsive ============ */
 @media (max-width: 820px) {
   .sidebar { width: 58px; padding: 10px 8px; }
-  .brand-name, .home-btn span, .new-chat-btn span:last-child, .workspace .ws-title, .ws-item .ws-label, .sidebar-foot { display: none; }
+  .brand-name, .home-btn span, .new-chat-btn span:last-child, .workspace .ws-title, .ws-item .ws-label { display: none; }
   .home-btn, .new-chat-btn { justify-content: center; padding: 10px 0; }
   .brand { justify-content: center; padding: 10px 0 14px; }
   .list { padding: 20px 16px; }

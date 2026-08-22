@@ -283,7 +283,7 @@ function itemFlag(it: any): string {
 /* Tabs */
 .tabs { display: flex; gap: 8px; margin-bottom: 20px; }
 .tab { background: var(--card); border: 1px solid var(--border); color: var(--text-dim); padding: 9px 22px; box-shadow: none; }
-.tab.active { background: var(--accent); color: #fff; border-color: var(--accent); box-shadow: 0 4px 12px rgba(11,110,107,.18); }
+.tab.active { background: var(--accent); color: #fff; border-color: var(--accent); box-shadow: 0 4px 12px rgba(217,138,115,.20); }
 
 /* Panels */
 .panel {

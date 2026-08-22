@@ -13,7 +13,7 @@ import org.springframework.stereotype.Component;
 @Component
 public class PersonaPrompts {
 
-    @Value("${app.persona-name:郑梓恒}")
+    @Value("${app.persona-name:邱俊景}")
     private String personaName;
 
     /** 完整人设（normal 模式 system 提示词） */

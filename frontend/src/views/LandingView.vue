@@ -58,7 +58,7 @@ onBeforeUnmount(() => window.removeEventListener('scroll', onScroll))
     <header class="site-header" :class="{ scrolled }">
       <div class="container header-inner">
         <a href="#home" class="brand" @click.prevent="scrollTo($event, '#home')">
-          <span class="brand-mark">ZZH</span>
+          <span class="brand-mark">AI</span>
           <span class="brand-text">
             <span class="brand-name">{{ profile.name }}</span>
             <span class="brand-sub">AI 分身</span>
@@ -91,7 +91,7 @@ onBeforeUnmount(() => window.removeEventListener('scroll', onScroll))
       <!-- Hero -->
       <section id="home" class="hero">
         <div class="container hero-inner">
-          <span class="eyebrow">Personal AI Agent · 在线分身</span>
+          <span class="eyebrow">Personal AI Agent · 在线作品集</span>
           <h1>你好，我是 <span class="gradient-text">{{ profile.name }}</span></h1>
           <p class="hero-title">{{ profile.title }}</p>
           <p class="hero-tagline">{{ profile.tagline }}</p>
@@ -115,13 +115,6 @@ onBeforeUnmount(() => window.removeEventListener('scroll', onScroll))
           <span class="eyebrow">01 / About</span>
           <h2>关于我</h2>
           <p class="lead">{{ profile.about }}</p>
-          <div class="feature-grid">
-            <div v-for="(s, i) in profile.skills" :key="s.name" class="feature-card">
-              <span class="feature-index mono">{{ String(i + 1).padStart(2, '0') }}</span>
-              <h3>{{ s.name }}</h3>
-              <p>{{ s.desc }}</p>
-            </div>
-          </div>
         </div>
       </section>
 
@@ -145,17 +138,21 @@ onBeforeUnmount(() => window.removeEventListener('scroll', onScroll))
         <div class="container">
           <span class="eyebrow">03 / Projects</span>
           <h2>项目</h2>
+          <p class="section-intro">两个项目都从真实问题出发，覆盖 AI 应用、后端服务、小程序和部署交付。</p>
           <div class="projects-grid">
             <article v-for="(p, i) in profile.projects" :key="p.title" class="project-card">
               <div class="project-top">
                 <span class="project-no mono">P{{ String(i + 1).padStart(2, '0') }}</span>
                 <a v-if="p.url" :href="p.url" target="_blank" rel="noopener" class="project-link">访问 ↗</a>
-                <span v-else class="project-link muted">进行中</span>
               </div>
               <h3>{{ p.title }}</h3>
               <p class="project-desc">{{ p.desc }}</p>
               <div class="tech-tags">
                 <span v-for="t in p.tech" :key="t" class="tag mono">{{ t }}</span>
+              </div>
+              <div class="project-actions">
+                <router-link to="/chat" class="text-link">向 AI 分身提问 <span>→</span></router-link>
+                <a v-if="p.url" :href="p.url" target="_blank" rel="noopener" class="text-link">查看项目 <span>↗</span></a>
               </div>
             </article>
           </div>
@@ -165,9 +162,31 @@ onBeforeUnmount(() => window.removeEventListener('scroll', onScroll))
       <!-- Experience -->
       <section id="experience" class="section section-alt">
         <div class="container">
-          <span class="eyebrow">04 / Experience</span>
-          <h2>经历</h2>
-          <div v-if="profile.experience.length" class="timeline">
+          <span class="eyebrow">04 / Delivery Log</span>
+          <h2>实践记录</h2>
+          <div class="timeline">
+            <div class="timeline-item">
+              <span class="timeline-dot" />
+              <div class="timeline-card">
+                <div class="timeline-heading">
+                  <div><h3>AI 分身 · 个人智能体网站</h3><p>RAG / Agent / Java 后端</p></div>
+                  <span class="timeline-period mono">2026.06 - 至今</span>
+                </div>
+                <p>将个人经历蒸馏成 Markdown 知识库，完成混合检索、引用溯源、SSE 流式回答、评测闭环和自动部署。</p>
+              </div>
+            </div>
+            <div class="timeline-item">
+              <span class="timeline-dot" />
+              <div class="timeline-card">
+                <div class="timeline-heading">
+                  <div><h3>FitLog · 训练记录微信小程序</h3><p>CloudBase / 数据统计 / Agent</p></div>
+                  <span class="timeline-period mono">2026.05 - 06</span>
+                </div>
+                <p>统一训练日和训练组数据口径，处理查询聚合、保存幂等、训练建议和饮食分析等场景。</p>
+              </div>
+            </div>
+          </div>
+          <div v-if="profile.experience.length" class="timeline legacy-timeline">
             <div v-for="(e, i) in profile.experience" :key="i" class="timeline-item">
               <span class="timeline-dot" />
               <div class="timeline-card">
@@ -177,10 +196,6 @@ onBeforeUnmount(() => window.removeEventListener('scroll', onScroll))
               </div>
             </div>
           </div>
-          <div v-else class="empty-card">
-            <p>完整经历正在整理中，你可以直接向我的 AI 分身提问了解。</p>
-            <router-link to="/chat" class="btn btn-primary">向 TA 提问</router-link>
-          </div>
         </div>
       </section>
 
@@ -189,8 +204,12 @@ onBeforeUnmount(() => window.removeEventListener('scroll', onScroll))
         <div class="container">
           <div class="ai-card">
             <span class="eyebrow">05 / AI Clone</span>
-            <h2>AI 分身</h2>
-            <p>关于项目、技术栈、学习经历，任何问题都可以直接问我的 AI 分身。回答基于知识库，可溯源。</p>
+            <h2>想深入了解某个项目？</h2>
+            <p>问我为什么选 pgvector、RRF 如何融合、FitLog 如何处理 N+1，或者直接追问项目中的取舍。回答基于知识库，可溯源。</p>
+            <div class="prompt-row">
+              <router-link to="/chat?prompt=为什么选择 PostgreSQL + pgvector？" class="prompt-chip">为什么选择 pgvector？</router-link>
+              <router-link to="/chat?prompt=FitLog 如何解决 N+1？" class="prompt-chip">FitLog 如何解决 N+1？</router-link>
+            </div>
             <router-link to="/chat" class="btn btn-primary">
               开始对话 <span class="arrow">→</span>
             </router-link>
@@ -204,8 +223,8 @@ onBeforeUnmount(() => window.removeEventListener('scroll', onScroll))
       <div class="container footer-inner">
         <div>
           <span class="eyebrow">06 / Contact</span>
-          <h2>保持联系</h2>
-          <p class="footer-note">这是我的 AI 分身，回答基于本人简历与项目经历；如有出入，以本人为准。</p>
+          <h2>与我联系</h2>
+          <p class="footer-note">邮箱：a1626718921@163.com</p>
         </div>
         <div class="socials">
           <a v-for="s in profile.socials" :key="s.name" :href="s.url" target="_blank" rel="noopener">
@@ -216,7 +235,6 @@ onBeforeUnmount(() => window.removeEventListener('scroll', onScroll))
       </div>
       <div class="container footer-bottom mono">
         <span>© {{ new Date().getFullYear() }} {{ profile.name }} · personal-agent-site</span>
-        <router-link to="/admin">管理入口</router-link>
       </div>
     </footer>
   </div>
@@ -226,21 +244,14 @@ onBeforeUnmount(() => window.removeEventListener('scroll', onScroll))
 .portfolio {
   min-height: 100%;
   position: relative;
-  background:
-    radial-gradient(circle at 10% -10%, rgba(11, 110, 107, 0.08), transparent 34%),
-    radial-gradient(circle at 90% 5%, rgba(232, 100, 60, 0.06), transparent 30%),
-    var(--bg);
+  background: var(--bg);
   font-family: var(--font-body);
   color: var(--text);
 }
 
 /* ============ Background blobs ============ */
 .bg-blobs {
-  position: fixed;
-  inset: 0;
-  z-index: 0;
-  pointer-events: none;
-  overflow: hidden;
+  display: none;
 }
 .blob {
   position: absolute;
@@ -253,21 +264,21 @@ onBeforeUnmount(() => window.removeEventListener('scroll', onScroll))
   height: 380px;
   top: 8%;
   left: 6%;
-  background: rgba(11, 110, 107, 0.20);
+  background: rgba(243, 180, 165, 0.20);
 }
 .blob-2 {
   width: 300px;
   height: 300px;
   top: 45%;
   right: 8%;
-  background: rgba(232, 100, 60, 0.16);
+  background: rgba(217, 138, 115, 0.16);
 }
 .blob-3 {
   width: 220px;
   height: 220px;
   bottom: 5%;
   left: 20%;
-  background: rgba(11, 110, 107, 0.14);
+  background: rgba(243, 180, 165, 0.14);
 }
 
 /* ============ Header ============ */
@@ -283,7 +294,7 @@ onBeforeUnmount(() => window.removeEventListener('scroll', onScroll))
 .site-header.scrolled {
   background: rgba(255, 255, 255, 0.78);
   border-bottom-color: var(--border);
-  box-shadow: 0 6px 20px rgba(23, 32, 43, 0.05);
+  box-shadow: 0 6px 20px rgba(24, 24, 27, 0.05);
 }
 .header-inner {
   display: flex;
@@ -311,7 +322,7 @@ onBeforeUnmount(() => window.removeEventListener('scroll', onScroll))
   font-size: 12px;
   font-weight: 800;
   letter-spacing: 0.04em;
-  box-shadow: 0 6px 14px rgba(11, 110, 107, 0.22);
+  box-shadow: 0 6px 14px rgba(217, 138, 115, 0.24);
 }
 .brand-text { display: flex; flex-direction: column; line-height: 1.2; }
 .brand-name { font-weight: 700; font-size: 15px; }
@@ -333,7 +344,7 @@ onBeforeUnmount(() => window.removeEventListener('scroll', onScroll))
   transition: color 0.2s ease, background 0.2s ease;
 }
 .desktop-nav a:hover { color: var(--accent); background: var(--hover); }
-.desktop-nav a.active { color: var(--accent); background: rgba(11, 110, 107, 0.10); font-weight: 600; }
+.desktop-nav a.active { color: var(--accent); background: rgba(243, 180, 165, 0.18); font-weight: 600; }
 .desktop-nav a.active::after {
   content: "";
   position: absolute;
@@ -397,13 +408,13 @@ onBeforeUnmount(() => window.removeEventListener('scroll', onScroll))
 .btn-primary {
   background: var(--accent);
   color: #fff;
-  box-shadow: 0 8px 20px rgba(11, 110, 107, 0.20);
+  box-shadow: 0 8px 20px rgba(217, 138, 115, 0.22);
 }
 .btn-primary:hover {
   background: var(--accent-hover);
   color: #fff;
   transform: translateY(-2px);
-  box-shadow: 0 12px 26px rgba(11, 110, 107, 0.26);
+  box-shadow: 0 12px 26px rgba(217, 138, 115, 0.28);
 }
 .btn-ghost {
   background: transparent;
@@ -490,12 +501,19 @@ onBeforeUnmount(() => window.removeEventListener('scroll', onScroll))
   scroll-margin-top: 76px;
   border-top: 1px solid var(--border);
 }
-.section-alt { background: rgba(233, 237, 242, 0.45); }
+.section-alt { background: rgba(244, 244, 245, 0.72); }
 .section h2 {
   font-family: var(--font-display);
   font-size: 34px;
   letter-spacing: -0.02em;
   margin: 12px 0 28px;
+}
+.section-intro {
+  max-width: 680px;
+  margin: -12px 0 30px;
+  color: var(--text-dim);
+  font-size: 14px;
+  line-height: 1.8;
 }
 .lead {
   color: var(--text-dim);
@@ -504,27 +522,6 @@ onBeforeUnmount(() => window.removeEventListener('scroll', onScroll))
   max-width: 860px;
   margin-bottom: 36px;
 }
-
-.feature-grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
-  gap: 16px;
-}
-.feature-card {
-  background: var(--card);
-  border: 1px solid var(--border);
-  border-radius: var(--radius-lg);
-  padding: 22px;
-  transition: transform 0.25s ease, box-shadow 0.25s ease, border-color 0.25s ease;
-}
-.feature-card:hover {
-  transform: translateY(-4px);
-  box-shadow: var(--shadow-md);
-  border-color: rgba(11, 110, 107, 0.30);
-}
-.feature-index { font-size: 12px; color: var(--text-faint); display: block; margin-bottom: 14px; }
-.feature-card h3 { font-size: 17px; color: var(--accent-strong); margin-bottom: 8px; }
-.feature-card p { font-size: 13px; color: var(--text-dim); line-height: 1.7; }
 
 .skills-grid {
   display: grid;
@@ -538,7 +535,7 @@ onBeforeUnmount(() => window.removeEventListener('scroll', onScroll))
   padding: 20px;
   transition: transform 0.25s ease, box-shadow 0.25s ease, border-color 0.25s ease;
 }
-.skill-card:hover { transform: translateY(-3px); box-shadow: var(--shadow-md); border-color: rgba(11, 110, 107, 0.30); }
+.skill-card:hover { transform: translateY(-3px); box-shadow: var(--shadow-md); border-color: rgba(217, 138, 115, 0.42); }
 .skill-index { font-size: 12px; color: var(--text-faint); display: block; margin-bottom: 12px; }
 .skill-card h3 { font-size: 17px; margin-bottom: 8px; color: var(--accent-strong); }
 .skill-card p { font-size: 13px; color: var(--text-dim); line-height: 1.7; }
@@ -554,11 +551,10 @@ onBeforeUnmount(() => window.removeEventListener('scroll', onScroll))
   gap: 12px;
   transition: transform 0.25s ease, box-shadow 0.25s ease, border-color 0.25s ease;
 }
-.project-card:hover { transform: translateY(-3px); box-shadow: var(--shadow-md); border-color: rgba(11, 110, 107, 0.30); }
+.project-card:hover { transform: translateY(-3px); box-shadow: var(--shadow-md); border-color: rgba(217, 138, 115, 0.42); }
 .project-top { display: flex; justify-content: space-between; align-items: center; }
 .project-no { font-size: 12px; color: var(--text-faint); }
 .project-link { font-size: 13px; font-weight: 600; }
-.project-link.muted { color: var(--text-faint); font-weight: 500; }
 .project-card h3 { font-size: 20px; letter-spacing: -0.01em; }
 .project-desc { color: var(--text-dim); font-size: 14px; flex: 1; line-height: 1.7; }
 .tech-tags { display: flex; flex-wrap: wrap; gap: 6px; }
@@ -572,6 +568,23 @@ onBeforeUnmount(() => window.removeEventListener('scroll', onScroll))
   padding: 4px 9px;
   border-radius: 999px;
 }
+.project-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 14px;
+  padding-top: 4px;
+  border-top: 1px solid var(--border);
+}
+.text-link {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  color: var(--accent);
+  font-size: 12px;
+  font-weight: 700;
+}
+.text-link span { transition: transform 0.2s ease; }
+.text-link:hover span { transform: translateX(3px); }
 
 .timeline { display: flex; flex-direction: column; gap: 14px; max-width: 860px; }
 .timeline-item { position: relative; display: grid; grid-template-columns: 18px 1fr; gap: 18px; padding-left: 4px; }
@@ -581,7 +594,7 @@ onBeforeUnmount(() => window.removeEventListener('scroll', onScroll))
   margin-top: 22px;
   border-radius: 50%;
   background: var(--accent);
-  box-shadow: 0 0 0 4px rgba(11, 110, 107, 0.14);
+  box-shadow: 0 0 0 4px rgba(217, 138, 115, 0.18);
 }
 .timeline-card {
   background: var(--card);
@@ -589,6 +602,14 @@ onBeforeUnmount(() => window.removeEventListener('scroll', onScroll))
   border-radius: var(--radius-lg);
   padding: 18px 22px;
 }
+.timeline-heading {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 18px;
+  margin-bottom: 8px;
+}
+.timeline-heading p { color: var(--accent); font-size: 12px; margin-top: 3px; }
 .timeline-card h3 { font-size: 16px; margin-bottom: 4px; }
 .timeline-period { font-size: 12px; color: var(--text-faint); margin-bottom: 8px; }
 .timeline-card p:last-child { color: var(--text-dim); font-size: 14px; line-height: 1.7; }
@@ -608,7 +629,7 @@ onBeforeUnmount(() => window.removeEventListener('scroll', onScroll))
 
 .ai-card {
   background:
-    linear-gradient(135deg, rgba(11, 110, 107, 0.08), rgba(232, 100, 60, 0.06)),
+    linear-gradient(135deg, rgba(243, 180, 165, 0.18), rgba(255, 240, 235, 0.70)),
     var(--card);
   border: 1px solid var(--border);
   border-radius: 20px;
@@ -622,6 +643,23 @@ onBeforeUnmount(() => window.removeEventListener('scroll', onScroll))
 }
 .ai-card h2 { margin-bottom: 0; }
 .ai-card p { color: var(--text-dim); max-width: 560px; line-height: 1.8; }
+.prompt-row {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 8px;
+  margin: 2px 0 8px;
+}
+.prompt-chip {
+  padding: 8px 12px;
+  border: 1px solid var(--border-strong);
+  border-radius: 999px;
+  background: var(--card);
+  color: var(--text-dim);
+  font-size: 12px;
+  transition: border-color 0.2s ease, color 0.2s ease, transform 0.2s ease;
+}
+.prompt-chip:hover { border-color: var(--accent); color: var(--accent); transform: translateY(-1px); }
 
 /* ============ Footer ============ */
 .site-footer {
@@ -677,5 +715,6 @@ onBeforeUnmount(() => window.removeEventListener('scroll', onScroll))
   .socials a { justify-content: space-between; }
   .footer-bottom { flex-direction: column; text-align: center; }
   .ai-card { padding: 32px 20px; }
+  .timeline-heading { flex-direction: column; gap: 2px; }
 }
 </style>
