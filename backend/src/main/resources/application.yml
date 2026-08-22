@@ -60,7 +60,7 @@ llm:
 app:
   cors-origins: ${CORS_ORIGINS:https://zhengziheng.me,https://www.zhengziheng.me,http://localhost:5173}
   # 站点公开展示名（非法定真名）；AI 分身以该名自称
-  persona-name: ${PERSONA_NAME:郑梓恒}
+  persona-name: ${PERSONA_NAME:邱俊景}
 
 # 站长账号（配置注入，不落库）
 security:

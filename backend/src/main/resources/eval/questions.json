@@ -1,6 +1,6 @@
 [
   { "id": "intro-01", "type": "fact", "question": "请做一下自我介绍",
-    "expectedDocs": ["01-个人简介"], "expectedPoints": ["郑梓恒", "广州商学院", "Agent", "RAG", "AI 应用"], "expectRefusal": false },
+    "expectedDocs": ["01-个人简介"], "expectedPoints": ["邱俊景", "广州商学院", "Agent", "RAG", "AI 应用"], "expectRefusal": false },
   { "id": "intro-02", "type": "fact", "question": "你的求职方向是什么",
     "expectedDocs": ["01-个人简介"], "expectedPoints": ["Agent", "AI 应用", "软件测试"], "expectRefusal": false },
   { "id": "intro-03", "type": "fact", "question": "你有哪些技术栈",
